@@ -44,6 +44,9 @@
     article.card { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:16px; }
     article.card h2, article.card h3 { font-family: Fraunces, serif; margin:6px 0; line-height:1.2; }
     article.card a.title { text-decoration:none; }
+    article.card img.foto { width:100%; height:190px; object-fit:cover; border-radius:12px; display:block; margin-bottom:10px; background:#e7e1d4; }
+    article.lead img.foto { height:340px; }
+    .prose img.foto { width:100%; max-height:420px; object-fit:cover; border-radius:12px; margin-bottom:12px; }
     .ad { margin:16px 0; min-height:84px; border:1px dashed #c9bfa8; border-radius:12px; display:flex; align-items:center; justify-content:center; color:#7a7366; letter-spacing:.08em; font-size:12px; text-transform:uppercase; background:repeating-linear-gradient(-45deg,#fbf8f1,#fbf8f1 8px,#f3eee3 8px,#f3eee3 16px); }
     .rail { margin-top:22px; }
     .rail h2 { font-family: Fraunces, serif; }
@@ -136,7 +139,6 @@
     };
     let items = [];
     let note = "Buscando os feeds públicos…";
-
     function sectionOf(title, region) {
       const hit = RULES.find((r) => r[1].test(title));
       return hit ? hit[0] : region;
@@ -156,6 +158,14 @@
       const d = new Date(iso);
       return Number.isNaN(d.getTime()) ? "" : d.toLocaleString("pt-BR", { timeZone: "America/Fortaleza" });
     }
+    function imagemDoItem(item) {
+      if (item.thumbnail) return item.thumbnail;
+      var enc = item.enclosure || {};
+      if (enc.link) return enc.link;
+      var html = String(item.content || "") + String(item.description || "");
+      var m = html.match(/<img[^>]+src=["']([^"']+)["']/i);
+      return m ? m[1] : "";
+    }
     async function load() {
       const batches = await Promise.all(FEEDS.map(async (feed) => {
         try {
@@ -164,11 +174,12 @@
           if (data.status !== "ok") return [];
           return (data.items || []).map((item) => ({
             title: item.title,
-            excerpt: String(item.description || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 220),
+            excerpt: String(item.description || item.content || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 220),
+            image: imagemDoItem(item),
             url: item.link,
             source: feed.source,
             region: feed.region,
-            section: sectionOf(item.title + " " + (item.description || ""), feed.region),
+            section: sectionOf(item.title + " " + (item.content || item.description || ""), feed.region),
             publishedAt: item.pubDate,
             slug: slug(item.link)
           }));
@@ -183,7 +194,8 @@
       render();
     }
     function card(item, featured) {
-      return `<article class="card"><p class="kicker">${esc(item.source)} · ${esc(item.section)}</p><${featured ? "h2" : "h3"}><a class="title" href="#/noticia/${item.slug}">${esc(item.title)}</a></${featured ? "h2" : "h3"}><p>${esc(item.excerpt)}</p><p class="note">${esc(when(item.publishedAt))}</p></article>`;
+      var foto = item.image ? `<img class="foto" src="${esc(item.image)}" alt="" />` : "";
+      return `<article class="card${featured ? " lead" : ""}">${foto}<p class="kicker">${esc(item.source)} · ${esc(item.section)}</p><${featured ? "h2" : "h3"}><a class="title" href="#/noticia/${item.slug}">${esc(item.title)}</a></${featured ? "h2" : "h3"}><p>${esc(item.excerpt)}</p><p class="note">${esc(when(item.publishedAt))}</p></article>`;
     }
     function ad() { return `<div class="ad">Publicidade</div>`; }
     function list(title, rows) {
@@ -202,7 +214,8 @@
     function noticia(id) {
       const item = items.find((i) => i.slug === id);
       if (!item) return page(`<p>Manchete não encontrada. Volte para a <a href="#/">capa</a>.</p>`);
-      page(`<article class="prose"><p class="kicker">${esc(item.source)} · ${esc(item.section)}</p><h1>${esc(item.title)}</h1><p class="note">${esc(when(item.publishedAt))}</p><p>${esc(item.excerpt)}</p>${ad()}<p>Este portal mostra o título e um trecho curto. O texto completo pertence à fonte.</p><p><a class="go" style="display:inline-block;text-decoration:none" href="${esc(item.url)}" target="_blank" rel="noopener noreferrer">Ler na fonte</a></p></article>`);
+      var foto = item.image ? `<img class="foto" src="${esc(item.image)}" alt="" />` : "";
+      page(`<article class="prose">${foto}<p class="kicker">${esc(item.source)} · ${esc(item.section)}</p><h1>${esc(item.title)}</h1><p class="note">${esc(when(item.publishedAt))}</p><p>${esc(item.excerpt)}</p>${ad()}<p>Este portal mostra o título e um trecho curto. O texto completo pertence à fonte.</p><p><a class="go" style="display:inline-block;text-decoration:none" href="${esc(item.url)}" target="_blank" rel="noopener noreferrer">Ler na fonte</a></p></article>`);
     }
     function busca(q) {
       const n = q.toLowerCase();
@@ -214,7 +227,7 @@
       contato: `<article class="prose"><h1>Contato</h1><p>E-mail da redação: <a href="mailto:redacao@jadeucerto.com">redacao@jadeucerto.com</a>.</p><p>Para corrigir uma manchete, o caminho é o veículo que publicou o texto. Aqui dá para retirar um card se o link estiver errado.</p></article>`,
       privacidade: `<article class="prose"><h1>Privacidade</h1><p>Este site usa o Google Analytics (identificador G-1V0JM8J72L) para medir visitas. Quando o Google AdSense for ativado na conta ca-pub-5066020163837493, o Google pode usar cookies para anúncios.</p><p>Você pode recusar cookies de anúncio em <a href="https://adssettings.google.com" target="_blank" rel="noopener">Configurações de anúncios do Google</a>.</p><p>Não pedimos cadastro e não vendemos lista de leitores.</p></article>`,
       termos: `<article class="prose"><h1>Termos</h1><p>As manchetes são de terceiros. O título e o trecho existem para identificar a notícia e apontar a fonte. Os direitos do texto integral permanecem com o veículo original.</p><p>O site não oferece aposta, cassino, empréstimo nem conteúdo adulto.</p></article>`,
-      automacao: `<article class="prose"><h1>Automação</h1><p>No GitHub Pages, este index.html lê os RSS quando alguém abre a página, pelo serviço rss2json, porque o navegador não consegue chamar o feed direto.</p><p>A pasta entrega traz o modelo da planilha e o Apps Script. No script, rode instalarCron uma vez para coletar a cada 15 minutos.</p><p>Os arquivos .tsx e news.ts não rodam no GitHub Pages. A capa publicada é este index.html.</p></article>`
+      automacao: `<article class="prose"><h1>Automação</h1><p>No GitHub Pages, este index.html lê os RSS quando alguém abre a página. A foto sai do HTML da matéria, quando o veículo publica uma.</p><p>A planilha e o Apps Script ficam no Google, não neste repositório.</p></article>`
     };
     function render() {
       const hash = location.hash || "#/";
@@ -240,7 +253,6 @@
       location.hash = "#/busca/" + encodeURIComponent(document.getElementById("q").value.trim());
     });
     window.addEventListener("hashchange", render);
-
     const log = document.getElementById("log");
     function say(from, text) {
       const p = document.createElement("p");
