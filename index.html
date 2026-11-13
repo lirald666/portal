@@ -134,16 +134,17 @@
       ["cultura", /cultura|show|m[uú]sica|festival|cinema|forr[oó]|s[aã]o jo[aã]o|teatro|livro|arte/i]
     ];
     const TOPICS = {
-      "Paraíba": "A editoria Paraíba reúne jornais locais e o g1 Paraíba. Cada card leva ao resumo e ao link da matéria original.",
-      "Estados": "O menu Estados abre os 27 estados. A página só mostra manchete que cita o estado ou a capital.",
-      "Famosos": "Famosos vem do g1 Pop & Arte e do UOL Entretenimento. O texto completo fica no site deles.",
-      "Anúncios": "Os espaços dizem PUBLICIDADE. Não há aposta nem cassino. Cookies de anúncio estão na Política de Privacidade.",
-      "Automação": "As manchetes entram sozinhas quando a página abre, a partir dos RSS. A planilha Google continua no Apps Script.",
+      "Paraíba": "A editoria Paraíba reúne jornais locais e o g1 Paraíba.",
+      "Estados": "O menu Estados abre os 27 estados e busca as últimas manchetes no Google Notícias.",
+      "Famosos": "Famosos vem do g1 Pop e Arte e do UOL Entretenimento.",
+      "Anúncios": "Os espaços dizem PUBLICIDADE. Não há aposta nem cassino.",
+      "Automação": "A busca chama o Apps Script, que consulta o Google Notícias e grava na planilha.",
       "Contato": "Escreva para redacao@jadeucerto.com.",
-      "Privacidade": "O site mede audiência com o Google Analytics informado no código. Detalhes estão em Privacidade."
+      "Privacidade": "O site usa o Google Analytics informado no código. Detalhes estão em Privacidade."
     };
     let items = [];
     let note = "Buscando os feeds públicos…";
+    var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzGZautsGqg3XpACUFGbGSngu-7qoNxEcs5CkWpq5H6RGoLUsLLP79ia1rSUGyI8jeE/exec";
     function sectionOf(title, region) {
       const hit = RULES.find((r) => r[1].test(title));
       return hit ? hit[0] : region;
@@ -188,7 +189,7 @@
             publishedAt: item.pubDate,
             slug: slug(item.link)
           }));
-        } catch { return []; }
+        } catch (e) { return []; }
       }));
       const seen = new Set();
       items = batches.flat().filter((item) => item.url && !seen.has(item.url) && seen.add(item.url));
@@ -199,86 +200,142 @@
       render();
     }
     function card(item, featured) {
-      var foto = item.image ? `<img class="foto" src="${esc(item.image)}" alt="" />` : "";
-      return `<article class="card${featured ? " lead" : ""}">${foto}<p class="kicker">${esc(item.source)} · ${esc(item.section)}</p><${featured ? "h2" : "h3"}><a class="title" href="#/noticia/${item.slug}">${esc(item.title)}</a></${featured ? "h2" : "h3"}><p>${esc(item.excerpt)}</p><p class="note">${esc(when(item.publishedAt))}</p></article>`;
+      var foto = item.image ? '<img class="foto" src="' + esc(item.image) + '" alt="" />' : "";
+      var tag = featured ? "h2" : "h3";
+      return '<article class="card' + (featured ? " lead" : "") + '">' + foto + '<p class="kicker">' + esc(item.source) + " · " + esc(item.section) + "</p><" + tag + '><a class="title" href="#/noticia/' + item.slug + '">' + esc(item.title) + "</a></" + tag + "><p>" + esc(item.excerpt) + '</p><p class="note">' + esc(when(item.publishedAt)) + "</p></article>";
     }
-    function ad() { return `<div class="ad">Publicidade</div>`; }
+    function ad() { return '<div class="ad">Publicidade</div>'; }
     function list(title, rows) {
       if (!rows.length) return "";
-      return `<section class="rail"><h2>${esc(title)}</h2><div class="grid two">${rows.slice(0, 4).map((item) => card(item, false)).join("")}</div></section>`;
+      return '<section class="rail"><h2>' + esc(title) + '</h2><div class="grid two">' + rows.slice(0, 4).map(function (item) { return card(item, false); }).join("") + "</div></section>";
     }
     function page(html) { document.getElementById("app").innerHTML = html; }
     function home() {
-      const [lead, ...rest] = items;
-      page(`<p class="note">${esc(note)}</p>${lead ? card(lead, true) : ""}<div class="ad">Publicidade</div><div class="grid two">${rest.slice(0, 4).map((item) => card(item, false)).join("")}</div>${list("Paraíba", items.filter((i) => i.region === "paraiba"))}${list("Brasil", items.filter((i) => i.region === "brasil"))}${list("Mundo", items.filter((i) => i.region === "mundo"))}${list("Famosos", items.filter((i) => i.section === "entretenimento"))}`);
+      var lead = items[0];
+      var rest = items.slice(1);
+      page('<p class="note">' + esc(note) + '</p><div id="alta"></div>' + (lead ? card(lead, true) : "") + ad() + '<div class="grid two">' + rest.slice(0, 4).map(function (item) { return card(item, false); }).join("") + "</div>" + list("Paraíba", items.filter(function (i) { return i.region === "paraiba"; })) + list("Brasil", items.filter(function (i) { return i.region === "brasil"; })) + list("Mundo", items.filter(function (i) { return i.region === "mundo"; })) + list("Famosos", items.filter(function (i) { return i.section === "entretenimento"; })));
+      emAlta();
+    }
+    async function emAlta() {
+      if (!document.getElementById("alta")) return;
+      var termos = [];
+      try {
+        const res = await fetch(SCRIPT_URL + "?acao=tendencias");
+        const data = await res.json();
+        termos = (data.tendencias || []).map(function (t) { return t.termo; }).filter(Boolean);
+      } catch (e) {}
+      if (!termos.length || !document.getElementById("alta")) return;
+      document.getElementById("alta").innerHTML = '<p class="kicker">Em alta no Google</p><div class="topics">' + termos.slice(0, 8).map(function (t) { return '<button type="button" data-trend="' + esc(t) + '">' + esc(t) + "</button>"; }).join("") + "</div>";
+      document.getElementById("alta").onclick = function (e) {
+        var termo = e.target.getAttribute && e.target.getAttribute("data-trend");
+        if (termo) location.hash = "#/busca/" + encodeURIComponent(termo);
+      };
     }
     function menciona(texto, termo) {
-      const n = String(texto || "").toLowerCase();
-      const q = String(termo || "").toLowerCase();
+      var n = String(texto || "").toLowerCase();
+      var q = String(termo || "").toLowerCase();
       if (!q) return false;
-      let i = 0;
+      var i = 0;
       while ((i = n.indexOf(q, i)) !== -1) {
-        const antes = i === 0 || !/[a-záàâãéêíóôõúç]/.test(n[i - 1]);
-        const depois = i + q.length >= n.length || !/[a-záàâãéêíóôõúç]/.test(n[i + q.length]);
+        var antes = i === 0 || !/[a-záàâãéêíóôõúç]/.test(n[i - 1]);
+        var depois = i + q.length >= n.length || !/[a-záàâãéêíóôõúç]/.test(n[i + q.length]);
         if (antes && depois) return true;
         i += q.length;
       }
       return false;
     }
     function doEstado(uf) {
-      const row = ESTADOS.find((e) => e[0] === String(uf || "").toUpperCase());
+      var row = ESTADOS.find(function (e) { return e[0] === String(uf || "").toUpperCase(); });
       if (!row) return [];
-      return items.filter((it) => menciona(it.title + " " + it.excerpt, row[1]) || menciona(it.title + " " + it.excerpt, row[2]));
+      return items.filter(function (it) { return menciona(it.title + " " + it.excerpt, row[1]) || menciona(it.title + " " + it.excerpt, row[2]); });
     }
     function estados() {
-      const cards = ESTADOS.map(([uf, nome, capital]) => `<a class="card" style="text-decoration:none" href="#/estado/${uf.toLowerCase()}"><p class="kicker">${uf}</p><h3>${esc(nome)}</h3><p class="note">Capital ${esc(capital)} · ${doEstado(uf).length} manchetes agora</p></a>`).join("");
-      page(`<p class="kicker">Brasil</p><h1 style="font-family:Fraunces,serif">Estados</h1><p>Cada estado só lista manchete em que o nome do estado ou da capital está no título ou no resumo. Não há uma página vazia para cada cidade: o Google trata isso como conteúdo ralo e costuma negar o AdSense.</p><form id="cidade" style="margin:12px 0"><input id="cidadeq" placeholder="Nome da cidade" aria-label="Cidade" /><button class="go" type="submit">Ver cidade</button></form><div class="grid two">${cards}</div>`);
-      document.getElementById("cidade").addEventListener("submit", (e) => {
+      var cards = ESTADOS.map(function (e) {
+        return '<a class="card" style="text-decoration:none" href="#/estado/' + e[0].toLowerCase() + '"><p class="kicker">' + e[0] + "</p><h3>" + esc(e[1]) + '</h3><p class="note">Capital ' + esc(e[2]) + " · " + doEstado(e[0]).length + " manchetes agora</p></a>";
+      }).join("");
+      page('<p class="kicker">Brasil</p><h1 style="font-family:Fraunces,serif">Estados</h1><p>Cada estado busca as últimas manchetes no Google Notícias. Digite uma cidade para procurar só nela.</p><form id="cidade" style="margin:12px 0"><input id="cidadeq" placeholder="Nome da cidade" aria-label="Cidade" /><button class="go" type="submit">Ver cidade</button></form><div class="grid two">' + cards + "</div>");
+      document.getElementById("cidade").addEventListener("submit", function (e) {
         e.preventDefault();
-        const q = document.getElementById("cidadeq").value.trim();
+        var q = document.getElementById("cidadeq").value.trim();
         if (q) location.hash = "#/cidade/" + encodeURIComponent(q);
       });
     }
-    function paginaEstado(uf) {
-      const row = ESTADOS.find((e) => e[0] === String(uf || "").toUpperCase());
-      if (!row) return page(`<p>Estado não encontrado. Volte para <a href="#/estados">Estados</a>.</p>`);
-      const rows = doEstado(row[0]);
-      page(`<p class="kicker">${row[0]}</p><h1 style="font-family:Fraunces,serif">${esc(row[1])}</h1><p>${esc(row[1])}, capital ${esc(row[2])}. Só entram manchetes desta abertura que citam o estado ou a capital, com link para o veículo original.</p><p class="note">${rows.length} manchetes nesta abertura.</p>${ad()}<div class="grid two">${rows.map((item) => card(item, false)).join("") || "<p>Nenhuma manchete citou este estado agora. A página continua no ar, mas não inventamos notícia.</p>"}</div>`);
+    function normalizarRemoto(item) {
+      var title = item.titulo || item.title || "";
+      var fonte = item.fonte || item.source || "Google Notícias";
+      if (!item.fonte && title.indexOf(" - ") > 0) {
+        var partes = title.split(" - ");
+        fonte = partes.pop();
+        title = partes.join(" - ");
+      }
+      var url = item.url || item.link || "";
+      return { title: title, excerpt: item.resumo || item.excerpt || "", image: item.imagem || item.image || "", url: url, source: fonte, region: item.regiao || "brasil", section: item.editoria || item.section || "brasil", publishedAt: item.publicado_em || item.publishedAt || item.pubDate || "", slug: slug(url || title) };
     }
-    function paginaCidade(nome) {
-      const rows = items.filter((it) => menciona(it.title + " " + it.excerpt, nome));
-      page(`<p class="kicker">Cidade</p><h1 style="font-family:Fraunces,serif">${esc(nome)}</h1><p>Resultado ao vivo para este nome. Não criamos 5.570 páginas fixas de município, porque páginas iguais e vazias prejudicam a aprovação no AdSense.</p><p class="note">${rows.length} manchetes nesta abertura.</p><div class="grid two">${rows.map((item) => card(item, false)).join("") || "<p>Nenhuma manchete citou essa cidade agora.</p>"}</div>`);
+    async function buscarNaRede(q) {
+      try {
+        const res = await fetch(SCRIPT_URL + "?q=" + encodeURIComponent(q));
+        const data = await res.json();
+        if (data.items && data.items.length) return data.items.map(normalizarRemoto);
+      } catch (e) {}
+      try {
+        var rss = "https://news.google.com/rss/search?q=" + encodeURIComponent(q) + "&hl=pt-BR&gl=BR&ceid=BR:pt-419";
+        const res2 = await fetch("https://api.rss2json.com/v1/api.json?count=12&rss_url=" + encodeURIComponent(rss));
+        const data2 = await res2.json();
+        if (data2.status !== "ok") return [];
+        return (data2.items || []).map(normalizarRemoto);
+      } catch (e) { return []; }
+    }
+    function juntar(listas) {
+      var seen = new Set();
+      return listas.flat().filter(function (item) { return item.url && !seen.has(item.url) && seen.add(item.url); });
+    }
+    async function paginaEstado(uf) {
+      var row = ESTADOS.find(function (e) { return e[0] === String(uf || "").toUpperCase(); });
+      if (!row) return page('<p>Estado não encontrado. Volte para <a href="#/estados">Estados</a>.</p>');
+      page('<p class="kicker">' + row[0] + '</p><h1 style="font-family:Fraunces,serif">' + esc(row[1]) + '</h1><p class="note">Buscando as últimas manchetes…</p>');
+      var rows = juntar([doEstado(row[0]), await buscarNaRede(row[1])]);
+      page('<p class="kicker">' + row[0] + '</p><h1 style="font-family:Fraunces,serif">' + esc(row[1]) + "</h1><p>" + esc(row[1]) + ", capital " + esc(row[2]) + '. Busca ao vivo no script e no Google Notícias. O texto completo fica na fonte.</p><p class="note">' + rows.length + " manchetes.</p>" + ad() + '<div class="grid two">' + (rows.map(function (item) { return card(item, false); }).join("") || "<p>Nenhuma manchete deste estado agora.</p>") + "</div>");
+    }
+    async function paginaCidade(nome) {
+      page('<p class="kicker">Cidade</p><h1 style="font-family:Fraunces,serif">' + esc(nome) + '</h1><p class="note">Buscando as últimas manchetes…</p>');
+      var locais = items.filter(function (it) { return menciona(it.title + " " + it.excerpt, nome); });
+      var rows = juntar([locais, await buscarNaRede(nome)]);
+      page('<p class="kicker">Cidade</p><h1 style="font-family:Fraunces,serif">' + esc(nome) + '</h1><p>Busca ao vivo. Se algum veículo publicou sobre esta cidade, a manchete entra aqui com o link da fonte.</p><p class="note">' + rows.length + ' manchetes.</p><div class="grid two">' + (rows.map(function (item) { return card(item, false); }).join("") || "<p>Nenhuma manchete citou essa cidade agora.</p>") + "</div>");
     }
     function secao(name) {
-      const rows = items.filter((i) => i.section === name || i.region === name);
-      const titulo = name === "entretenimento" ? "Famosos" : name;
-      page(`<p class="kicker">Editoria</p><h1 style="font-family:Fraunces,serif">${esc(titulo)}</h1><p class="note">${rows.length} manchetes nesta abertura.</p>${ad()}<div class="grid two">${rows.map((item) => card(item, false)).join("") || "<p>Nada nesta editoria agora.</p>"}</div>`);
+      var rows = items.filter(function (i) { return i.section === name || i.region === name; });
+      var titulo = name === "entretenimento" ? "Famosos" : name;
+      page('<p class="kicker">Editoria</p><h1 style="font-family:Fraunces,serif">' + esc(titulo) + '</h1><p class="note">' + rows.length + " manchetes nesta abertura.</p>" + ad() + '<div class="grid two">' + (rows.map(function (item) { return card(item, false); }).join("") || "<p>Nada nesta editoria agora.</p>") + "</div>");
     }
     function noticia(id) {
-      const item = items.find((i) => i.slug === id);
-      if (!item) return page(`<p>Manchete não encontrada. Volte para a <a href="#/">capa</a>.</p>`);
-      var foto = item.image ? `<img class="foto" src="${esc(item.image)}" alt="" />` : "";
-      page(`<article class="prose">${foto}<p class="kicker">${esc(item.source)} · ${esc(item.section)}</p><h1>${esc(item.title)}</h1><p class="note">${esc(when(item.publishedAt))}</p><p>${esc(item.excerpt)}</p>${ad()}<p>Este portal mostra o título e um trecho curto. O texto completo pertence à fonte.</p><p><a class="go" style="display:inline-block;text-decoration:none" href="${esc(item.url)}" target="_blank" rel="noopener noreferrer">Ler na fonte</a></p></article>`);
+      var item = items.find(function (i) { return i.slug === id; });
+      if (!item) return page('<p>Manchete não encontrada. Volte para a <a href="#/">capa</a>.</p>');
+      var foto = item.image ? '<img class="foto" src="' + esc(item.image) + '" alt="" />' : "";
+      page('<article class="prose">' + foto + '<p class="kicker">' + esc(item.source) + " · " + esc(item.section) + '</p><h1>' + esc(item.title) + '</h1><p class="note">' + esc(when(item.publishedAt)) + "</p><p>" + esc(item.excerpt) + "</p>" + ad() + '<p>Este portal mostra o título e um trecho curto. O texto completo pertence à fonte.</p><p><a class="go" style="display:inline-block;text-decoration:none" href="' + esc(item.url) + '" target="_blank" rel="noopener noreferrer">Ler na fonte</a></p></article>');
     }
-    function busca(q) {
-      const n = q.toLowerCase();
-      const rows = items.filter((i) => (i.title + i.excerpt + i.source).toLowerCase().includes(n));
-      page(`<h1 style="font-family:Fraunces,serif">Busca: ${esc(q)}</h1><p class="note">${rows.length} resultados nesta abertura.</p><div class="grid two">${rows.map((item) => card(item, false)).join("") || "<p>Nenhuma manchete com esse termo.</p>"}</div>`);
+    async function busca(q) {
+      page('<h1 style="font-family:Fraunces,serif">Busca: ' + esc(q) + '</h1><p class="note">Consultando o Apps Script e o Google Notícias…</p>');
+      var n = q.toLowerCase();
+      var locais = items.filter(function (i) { return (i.title + " " + i.excerpt + " " + i.source).toLowerCase().indexOf(n) !== -1; });
+      var rows = juntar([locais, await buscarNaRede(q)]);
+      page('<h1 style="font-family:Fraunces,serif">Busca: ' + esc(q) + '</h1><p class="note">' + rows.length + ' manchetes, incluindo as últimas encontradas agora.</p><div class="grid two">' + (rows.map(function (item) { return card(item, false); }).join("") || "<p>Nenhuma manchete com esse termo agora.</p>") + "</div>");
     }
     const STATIC = {
-      sobre: `<article class="prose"><h1>Sobre</h1><p>O Já Deu Certo é um portal de manchetes da Paraíba, do Brasil e do mundo. Não reescrevemos a reportagem: publicamos título, um trecho e o link do veículo.</p><p>Fontes: Jornal da Paraíba, Paraíba Online, Portal Correio, g1, UOL, CNN Brasil, Agência Brasil e BBC News Brasil. Famosos vem do g1 Pop e Arte e do UOL Entretenimento.</p><p>Editor responsável: redação Já Deu Certo. Contato: redacao@jadeucerto.com.</p></article>`,
-      contato: `<article class="prose"><h1>Contato</h1><p>E-mail da redação: <a href="mailto:redacao@jadeucerto.com">redacao@jadeucerto.com</a>.</p><p>Para corrigir uma manchete, o caminho é o veículo que publicou o texto.</p></article>`,
-      privacidade: `<article class="prose"><h1>Privacidade</h1><p>Este site usa o Google Analytics (identificador G-1V0JM8J72L) para medir visitas. Quando o Google AdSense for ativado na conta ca-pub-5066020163837493, o Google pode usar cookies para anúncios.</p><p>Você pode recusar cookies de anúncio em <a href="https://adssettings.google.com" target="_blank" rel="noopener">Configurações de anúncios do Google</a>.</p><p>Não pedimos cadastro e não vendemos lista de leitores.</p></article>`,
-      termos: `<article class="prose"><h1>Termos</h1><p>As manchetes são de terceiros. O título e o trecho existem para identificar a notícia e apontar a fonte. Os direitos do texto integral permanecem com o veículo original.</p><p>O site não oferece aposta, cassino, empréstimo nem conteúdo adulto.</p></article>`,
-      automacao: `<article class="prose"><h1>Automação</h1><p>Cada abertura da página busca de novo os RSS de jornais da Paraíba, g1, UOL, CNN Brasil, Agência Brasil e BBC. Não há robô publicando texto copiado.</p><p>A planilha e o Apps Script continuam no Google, com o gatilho de 15 minutos na função coletar.</p></article>`
+      sobre: '<article class="prose"><h1>Sobre</h1><p>O Já Deu Certo publica título, trecho e link da fonte. Não reescrevemos a reportagem.</p><p>Fontes: Jornal da Paraíba, Paraíba Online, Portal Correio, g1, UOL, CNN Brasil, Agência Brasil e BBC News Brasil. A busca também consulta o Google Notícias pelo Apps Script.</p><p>Contato: redacao@jadeucerto.com.</p></article>',
+      contato: '<article class="prose"><h1>Contato</h1><p>E-mail da redação: <a href="mailto:redacao@jadeucerto.com">redacao@jadeucerto.com</a>.</p></article>',
+      privacidade: '<article class="prose"><h1>Privacidade</h1><p>Este site usa o Google Analytics (G-1V0JM8J72L). Quando o AdSense da conta ca-pub-5066020163837493 for ativado, o Google pode usar cookies de anúncio.</p><p>Não pedimos cadastro e não vendemos lista de leitores.</p></article>',
+      termos: '<article class="prose"><h1>Termos</h1><p>O título e o trecho identificam a notícia e apontam a fonte. O texto integral pertence ao veículo original.</p><p>O site não oferece aposta, cassino nem conteúdo adulto.</p></article>',
+      automacao: '<article class="prose"><h1>Automação</h1><p>A busca, os estados e as cidades chamam o Apps Script publicado. A função coletar, a cada 15 minutos, grava portais, assuntos em alta e notícias dos 27 estados.</p></article>'
     };
     function render() {
-      const hash = location.hash || "#/";
-      const part = hash.replace(/^#\/?/, "");
-      const [name, arg] = part.split("/");
-      document.getElementById("nav").innerHTML = NAV.map(([label, href]) => {
-        const on = href === "#/" ? hash === "#/" || hash === "" : hash.startsWith(href);
-        return `<button class="${on ? "on" : ""}" type="button" data-href="${href}">${label}</button>`;
+      var hash = location.hash || "#/";
+      var part = hash.replace(/^#\/?/, "");
+      var bits = part.split("/");
+      var name = bits[0];
+      var arg = bits[1];
+      document.getElementById("nav").innerHTML = NAV.map(function (item) {
+        var on = item[1] === "#/" ? (hash === "#/" || hash === "") : hash.indexOf(item[1]) === 0;
+        return '<button class="' + (on ? "on" : "") + '" type="button" data-href="' + item[1] + '">' + item[0] + "</button>";
       }).join("");
       if (!name) return home();
       if (name === "estados") return estados();
@@ -290,18 +347,18 @@
       if (STATIC[name]) return page(STATIC[name]);
       home();
     }
-    document.getElementById("nav").addEventListener("click", (e) => {
-      const href = e.target.getAttribute && e.target.getAttribute("data-href");
+    document.getElementById("nav").addEventListener("click", function (e) {
+      var href = e.target.getAttribute && e.target.getAttribute("data-href");
       if (href) location.hash = href;
     });
-    document.getElementById("search").addEventListener("submit", (e) => {
+    document.getElementById("search").addEventListener("submit", function (e) {
       e.preventDefault();
       location.hash = "#/busca/" + encodeURIComponent(document.getElementById("q").value.trim());
     });
     window.addEventListener("hashchange", render);
-    const log = document.getElementById("log");
+    var log = document.getElementById("log");
     function say(from, text) {
-      const p = document.createElement("p");
+      var p = document.createElement("p");
       p.className = "msg " + (from === "bot" ? "botmsg" : "usermsg");
       p.textContent = text;
       log.appendChild(p);
@@ -309,21 +366,21 @@
     }
     function answer(text) {
       say("user", text);
-      const key = Object.keys(TOPICS).find((k) => text.toLowerCase().includes(k.toLowerCase()));
+      var key = Object.keys(TOPICS).find(function (k) { return text.toLowerCase().indexOf(k.toLowerCase()) !== -1; });
       say("bot", key ? TOPICS[key] : "Posso falar sobre Paraíba, Estados, Famosos, anúncios, automação, contato e privacidade.");
     }
     say("bot", "Olá. Sou o apoio do Já Deu Certo. Escolha um assunto ou escreva a palavra.");
-    document.getElementById("topics").innerHTML = Object.keys(TOPICS).map((k) => `<button type="button">${k}</button>`).join("");
-    document.getElementById("topics").addEventListener("click", (e) => { if (e.target.tagName === "BUTTON") answer(e.target.textContent); });
-    document.getElementById("ask").addEventListener("submit", (e) => {
+    document.getElementById("topics").innerHTML = Object.keys(TOPICS).map(function (k) { return '<button type="button">' + k + "</button>"; }).join("");
+    document.getElementById("topics").addEventListener("click", function (e) { if (e.target.tagName === "BUTTON") answer(e.target.textContent); });
+    document.getElementById("ask").addEventListener("submit", function (e) {
       e.preventDefault();
-      const v = document.getElementById("askq").value.trim();
+      var v = document.getElementById("askq").value.trim();
       if (!v) return;
       document.getElementById("askq").value = "";
       answer(v);
     });
-    document.getElementById("openbot").onclick = () => document.getElementById("panel").classList.add("open");
-    document.getElementById("closebot").onclick = () => document.getElementById("panel").classList.remove("open");
+    document.getElementById("openbot").onclick = function () { document.getElementById("panel").classList.add("open"); };
+    document.getElementById("closebot").onclick = function () { document.getElementById("panel").classList.remove("open"); };
     render();
     load();
   </script>
