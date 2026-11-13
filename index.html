@@ -1,1 +1,273 @@
-<render_file file_path="/workspace/artifacts/pacote-jadeucerto.zip" />
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Já Deu Certo | Notícias da Paraíba e do mundo</title>
+  <meta name="description" content="Portal Já Deu Certo: manchetes da Paraíba, do Brasil e do mundo, com crédito à fonte." />
+  <meta name="google-adsense-account" content="ca-pub-5066020163837493" />
+  <meta name="theme-color" content="#0e3b2e" />
+  <link rel="icon" href="favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560;9..144,680&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet" />
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-1V0JM8J72L"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag("js", new Date());
+    gtag("config", "G-1V0JM8J72L");
+  </script>
+  <style>
+    :root { --ink:#14211c; --paper:#f4efe4; --card:#fffdf8; --forest:#0e3b2e; --moss:#1d6b4a; --gold:#a9782f; --line:#e4dccb; --muted:#5d675f; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family:"Source Sans 3", sans-serif; background:var(--paper); color:var(--ink); }
+    a { color: inherit; }
+    header { position:sticky; top:0; z-index:20; background:rgba(255,253,248,.94); border-bottom:1px solid var(--line); backdrop-filter:blur(8px); }
+    .bar, .nav, main, footer .wrap { max-width: 1100px; margin: 0 auto; padding: 0 16px; }
+    .bar { display:flex; align-items:center; gap:12px; min-height:64px; }
+    .logo { font-family: Fraunces, serif; font-size: 1.45rem; text-decoration:none; }
+    .logo span { color: var(--gold); }
+    form { margin-left:auto; display:flex; gap:6px; }
+    input, textarea { font: inherit; border:1px solid var(--line); border-radius:999px; padding:8px 12px; background:#fff; }
+    textarea { border-radius:12px; width:100%; }
+    button, .chip { font: inherit; cursor:pointer; border:0; background:transparent; }
+    .go { background:var(--forest); color:var(--paper); border-radius:999px; padding:8px 14px; }
+    nav { display:flex; gap:6px; overflow:auto; padding-bottom:10px; }
+    nav button { white-space:nowrap; border-radius:999px; padding:6px 12px; }
+    nav button.on { background:var(--forest); color:var(--paper); }
+    main { padding: 22px 16px 48px; }
+    .kicker { letter-spacing:.16em; text-transform:uppercase; font-size:11px; font-weight:700; color:var(--moss); }
+    .note { color:var(--muted); font-size:.92rem; }
+    .grid { display:grid; gap:14px; }
+    @media (min-width:760px) { .grid.two { grid-template-columns: 1fr 1fr; } }
+    article.card { background:var(--card); border:1px solid var(--line); border-radius:16px; padding:16px; }
+    article.card h2, article.card h3 { font-family: Fraunces, serif; margin:6px 0; line-height:1.2; }
+    article.card a.title { text-decoration:none; }
+    .ad { margin:16px 0; min-height:84px; border:1px dashed #c9bfa8; border-radius:12px; display:flex; align-items:center; justify-content:center; color:#7a7366; letter-spacing:.08em; font-size:12px; text-transform:uppercase; background:repeating-linear-gradient(-45deg,#fbf8f1,#fbf8f1 8px,#f3eee3 8px,#f3eee3 16px); }
+    .rail { margin-top:22px; }
+    .rail h2 { font-family: Fraunces, serif; }
+    footer { background:var(--forest); color:var(--paper); }
+    footer a { color:#f4efe4; }
+    footer .wrap { display:grid; gap:14px; padding:28px 16px; }
+    @media (min-width:760px) { footer .wrap { grid-template-columns: 1.4fr 1fr 1fr; } }
+    .prose { max-width: 720px; }
+    .prose h1 { font-family: Fraunces, serif; }
+    #bot { position:fixed; right:16px; bottom:16px; z-index:30; width:min(100% - 32px, 340px); }
+    #panel { display:none; background:var(--card); border:1px solid var(--line); border-radius:16px; overflow:hidden; margin-bottom:8px; height:380px; flex-direction:column; }
+    #panel.open { display:flex; }
+    #panel header { position:static; background:var(--forest); color:var(--paper); padding:10px 12px; display:flex; justify-content:space-between; }
+    #log { flex:1; overflow:auto; padding:10px; display:flex; flex-direction:column; gap:8px; }
+    .msg { border-radius:14px; padding:8px 10px; font-size:.92rem; }
+    .botmsg { background:var(--paper); }
+    .usermsg { background:var(--forest); color:var(--paper); margin-left:28px; }
+    .topics { display:flex; flex-wrap:wrap; gap:6px; padding:0 10px 8px; }
+    .topics button { border:1px solid var(--line); border-radius:999px; padding:4px 8px; font-size:12px; }
+    #ask { display:flex; gap:6px; padding:8px; border-top:1px solid var(--line); }
+    #ask input { flex:1; }
+    #openbot { background:var(--gold); color:var(--ink); border-radius:999px; padding:10px 14px; font-weight:700; float:right; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="bar">
+      <a class="logo" href="#/">Já Deu <span>Certo</span></a>
+      <form id="search">
+        <input id="q" placeholder="Buscar manchete" aria-label="Buscar" />
+        <button class="go" type="submit">Buscar</button>
+      </form>
+    </div>
+    <div class="nav" id="nav"></div>
+  </header>
+  <main id="app"><p class="note">Carregando manchetes…</p></main>
+  <footer>
+    <div class="wrap">
+      <div>
+        <strong>Já Deu Certo</strong>
+        <p>Manchetes da Paraíba, do Brasil e do mundo. O texto completo fica no veículo de origem.</p>
+      </div>
+      <div>
+        <a href="#/sobre">Sobre</a><br />
+        <a href="#/contato">Contato</a><br />
+        <a href="#/privacidade">Privacidade</a><br />
+        <a href="#/termos">Termos</a>
+      </div>
+      <div>
+        <a href="#/automacao">Automação</a><br />
+        redacao@jadeucerto.com
+      </div>
+    </div>
+  </footer>
+  <div id="bot">
+    <div id="panel">
+      <header><strong>Apoio do portal</strong><button id="closebot" type="button">Fechar</button></header>
+      <div id="log"></div>
+      <div class="topics" id="topics"></div>
+      <form id="ask"><input id="askq" placeholder="Escreva o assunto" /><button class="go" type="submit">Enviar</button></form>
+    </div>
+    <button id="openbot" type="button">Apoio</button>
+  </div>
+  <script>
+    const FEEDS = [
+      { url: "https://www.jornaldaparaiba.com.br/feed", source: "Jornal da Paraíba", region: "paraiba" },
+      { url: "https://paraibaonline.com.br/feed/", source: "Paraíba Online", region: "paraiba" },
+      { url: "https://portalcorreio.com.br/feed/", source: "Portal Correio", region: "paraiba" },
+      { url: "https://agenciabrasil.ebc.com.br/rss/ultimasnoticias/feed.xml", source: "Agência Brasil", region: "brasil" },
+      { url: "https://feeds.bbci.co.uk/portuguese/rss.xml", source: "BBC News Brasil", region: "mundo" }
+    ];
+    const NAV = [
+      ["Capa", "#/"], ["Paraíba", "#/secao/paraiba"], ["Brasil", "#/secao/brasil"], ["Mundo", "#/secao/mundo"],
+      ["Política", "#/secao/politica"], ["Economia", "#/secao/economia"], ["Esportes", "#/secao/esportes"], ["Cultura", "#/secao/cultura"]
+    ];
+    const RULES = [
+      ["esportes", /futebol|campeonato|treze|botafogo|esporte|olimp|basquete|vôlei|volei|nba|libertadores|brasileir[aã]o/i],
+      ["economia", /economia|d[oó]lar|infla|emprego|sal[aá]rio|pib|imposto|mercado|safra|juros|bolsa|selic/i],
+      ["politica", /pol[ií]tica|prefeit|govern|c[aâ]mara|deputad|elei[cç]|assembleia|stf|senado|ministro/i],
+      ["cultura", /cultura|show|m[uú]sica|festival|cinema|forr[oó]|s[aã]o jo[aã]o|teatro|livro|arte/i]
+    ];
+    const TOPICS = {
+      "Paraíba": "A editoria Paraíba reúne o Jornal da Paraíba, Paraíba Online e Portal Correio. Cada card leva ao resumo e ao link da matéria original.",
+      "Brasil": "Brasil usa a Agência Brasil. Política e economia também aparecem nos filtros do menu.",
+      "Mundo": "Mundo vem da BBC News Brasil. O texto integral fica no site da BBC.",
+      "Anúncios": "Os espaços dizem PUBLICIDADE. Não há aposta nem cassino. Cookies de anúncio estão na Política de Privacidade.",
+      "Automação": "A página Automação explica a planilha e o Apps Script. Este index.html, no GitHub Pages, busca os RSS no navegador quando a página abre.",
+      "Contato": "Escreva para redacao@jadeucerto.com. Correção do texto original é do veículo que publicou.",
+      "Privacidade": "O site mede audiência com o Google Analytics informado no código. Detalhes estão em Privacidade."
+    };
+    let items = [];
+    let note = "Buscando os feeds públicos…";
+
+    function sectionOf(title, region) {
+      const hit = RULES.find((r) => r[1].test(title));
+      return hit ? hit[0] : region;
+    }
+    function slug(url) {
+      return btoa(unescape(encodeURIComponent(url))).replace(/[^a-z0-9]/gi, "").slice(0, 24);
+    }
+    function esc(s) {
+      return String(s || "").replace(/[&<>"]/g, function (c) {
+        if (c === "&") return "&" + "amp;";
+        if (c === "<") return "&" + "lt;";
+        if (c === ">") return "&" + "gt;";
+        return "&" + "quot;";
+      });
+    }
+    function when(iso) {
+      const d = new Date(iso);
+      return Number.isNaN(d.getTime()) ? "" : d.toLocaleString("pt-BR", { timeZone: "America/Fortaleza" });
+    }
+    async function load() {
+      const batches = await Promise.all(FEEDS.map(async (feed) => {
+        try {
+          const res = await fetch("https://api.rss2json.com/v1/api.json?rss_url=" + encodeURIComponent(feed.url));
+          const data = await res.json();
+          if (data.status !== "ok") return [];
+          return (data.items || []).map((item) => ({
+            title: item.title,
+            excerpt: String(item.description || "").replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 220),
+            url: item.link,
+            source: feed.source,
+            region: feed.region,
+            section: sectionOf(item.title + " " + (item.description || ""), feed.region),
+            publishedAt: item.pubDate,
+            slug: slug(item.link)
+          }));
+        } catch { return []; }
+      }));
+      const seen = new Set();
+      items = batches.flat().filter((item) => item.url && !seen.has(item.url) && seen.add(item.url));
+      items.sort((a, b) => +new Date(b.publishedAt) - +new Date(a.publishedAt));
+      note = items.length
+        ? "Manchetes lidas agora dos feeds públicos. Última abertura: " + new Date().toLocaleString("pt-BR", { timeZone: "America/Fortaleza" }) + ". O texto completo fica na fonte."
+        : "Os feeds não responderam nesta abertura. Recarregue a página em alguns minutos.";
+      render();
+    }
+    function card(item, featured) {
+      return `<article class="card"><p class="kicker">${esc(item.source)} · ${esc(item.section)}</p><${featured ? "h2" : "h3"}><a class="title" href="#/noticia/${item.slug}">${esc(item.title)}</a></${featured ? "h2" : "h3"}><p>${esc(item.excerpt)}</p><p class="note">${esc(when(item.publishedAt))}</p></article>`;
+    }
+    function ad() { return `<div class="ad">Publicidade</div>`; }
+    function list(title, rows) {
+      if (!rows.length) return "";
+      return `<section class="rail"><h2>${esc(title)}</h2><div class="grid two">${rows.slice(0, 4).map((item) => card(item, false)).join("")}</div></section>`;
+    }
+    function page(html) { document.getElementById("app").innerHTML = html; }
+    function home() {
+      const [lead, ...rest] = items;
+      page(`<p class="note">${esc(note)}</p>${lead ? card(lead, true) : ""}<div class="ad">Publicidade</div><div class="grid two">${rest.slice(0, 4).map((item) => card(item, false)).join("")}</div>${list("Paraíba", items.filter((i) => i.region === "paraiba"))}${list("Brasil", items.filter((i) => i.region === "brasil"))}${list("Mundo", items.filter((i) => i.region === "mundo"))}`);
+    }
+    function secao(name) {
+      const rows = items.filter((i) => i.section === name || i.region === name);
+      page(`<p class="kicker">Editoria</p><h1 class="serif" style="font-family:Fraunces,serif">${esc(name)}</h1><p class="note">${rows.length} manchetes nesta abertura.</p>${ad()}<div class="grid two">${rows.map((item) => card(item, false)).join("") || "<p>Nada nesta editoria agora.</p>"}</div>`);
+    }
+    function noticia(id) {
+      const item = items.find((i) => i.slug === id);
+      if (!item) return page(`<p>Manchete não encontrada. Volte para a <a href="#/">capa</a>.</p>`);
+      page(`<article class="prose"><p class="kicker">${esc(item.source)} · ${esc(item.section)}</p><h1>${esc(item.title)}</h1><p class="note">${esc(when(item.publishedAt))}</p><p>${esc(item.excerpt)}</p>${ad()}<p>Este portal mostra o título e um trecho curto. O texto completo pertence à fonte.</p><p><a class="go" style="display:inline-block;text-decoration:none" href="${esc(item.url)}" target="_blank" rel="noopener noreferrer">Ler na fonte</a></p></article>`);
+    }
+    function busca(q) {
+      const n = q.toLowerCase();
+      const rows = items.filter((i) => (i.title + i.excerpt + i.source).toLowerCase().includes(n));
+      page(`<h1 style="font-family:Fraunces,serif">Busca: ${esc(q)}</h1><p class="note">${rows.length} resultados nesta abertura.</p><div class="grid two">${rows.map((item) => card(item, false)).join("") || "<p>Nenhuma manchete com esse termo.</p>"}</div>`);
+    }
+    const STATIC = {
+      sobre: `<article class="prose"><h1>Sobre</h1><p>O Já Deu Certo é um portal de manchetes da Paraíba, do Brasil e do mundo. Não reescrevemos a reportagem: publicamos título, um trecho e o link do veículo.</p><p>Fontes desta edição: Jornal da Paraíba, Paraíba Online, Portal Correio, Agência Brasil e BBC News Brasil.</p><p>Editor responsável: redação Já Deu Certo. Contato: redacao@jadeucerto.com. Domínio previsto: jadeucerto.com.</p></article>`,
+      contato: `<article class="prose"><h1>Contato</h1><p>E-mail da redação: <a href="mailto:redacao@jadeucerto.com">redacao@jadeucerto.com</a>.</p><p>Para corrigir uma manchete, o caminho é o veículo que publicou o texto. Aqui dá para retirar um card se o link estiver errado.</p></article>`,
+      privacidade: `<article class="prose"><h1>Privacidade</h1><p>Este site usa o Google Analytics (identificador G-1V0JM8J72L) para medir visitas. Quando o Google AdSense for ativado na conta ca-pub-5066020163837493, o Google pode usar cookies para anúncios.</p><p>Você pode recusar cookies de anúncio em <a href="https://adssettings.google.com" target="_blank" rel="noopener">Configurações de anúncios do Google</a>.</p><p>Não pedimos cadastro e não vendemos lista de leitores.</p></article>`,
+      termos: `<article class="prose"><h1>Termos</h1><p>As manchetes são de terceiros. O título e o trecho existem para identificar a notícia e apontar a fonte. Os direitos do texto integral permanecem com o veículo original.</p><p>O site não oferece aposta, cassino, empréstimo nem conteúdo adulto.</p></article>`,
+      automacao: `<article class="prose"><h1>Automação</h1><p>No GitHub Pages, este index.html lê os RSS quando alguém abre a página, pelo serviço rss2json, porque o navegador não consegue chamar o feed direto.</p><p>A pasta entrega traz o modelo da planilha e o Apps Script. No script, rode instalarCron uma vez para coletar a cada 15 minutos.</p><p>Os arquivos .tsx e news.ts não rodam no GitHub Pages. A capa publicada é este index.html.</p></article>`
+    };
+    function render() {
+      const hash = location.hash || "#/";
+      const part = hash.replace(/^#\/?/, "");
+      const [name, arg] = part.split("/");
+      document.getElementById("nav").innerHTML = NAV.map(([label, href]) => {
+        const on = href === "#/" ? hash === "#/" || hash === "" : hash.startsWith(href);
+        return `<button class="${on ? "on" : ""}" type="button" data-href="${href}">${label}</button>`;
+      }).join("");
+      if (!name) return home();
+      if (name === "secao" && arg) return secao(decodeURIComponent(arg));
+      if (name === "noticia" && arg) return noticia(arg);
+      if (name === "busca") return busca(decodeURIComponent(arg || ""));
+      if (STATIC[name]) return page(STATIC[name]);
+      home();
+    }
+    document.getElementById("nav").addEventListener("click", (e) => {
+      const href = e.target.getAttribute && e.target.getAttribute("data-href");
+      if (href) location.hash = href;
+    });
+    document.getElementById("search").addEventListener("submit", (e) => {
+      e.preventDefault();
+      location.hash = "#/busca/" + encodeURIComponent(document.getElementById("q").value.trim());
+    });
+    window.addEventListener("hashchange", render);
+
+    const log = document.getElementById("log");
+    function say(from, text) {
+      const p = document.createElement("p");
+      p.className = "msg " + (from === "bot" ? "botmsg" : "usermsg");
+      p.textContent = text;
+      log.appendChild(p);
+      log.scrollTop = log.scrollHeight;
+    }
+    function answer(text) {
+      say("user", text);
+      const key = Object.keys(TOPICS).find((k) => text.toLowerCase().includes(k.toLowerCase()));
+      say("bot", key ? TOPICS[key] : "Posso falar sobre Paraíba, Brasil, Mundo, anúncios, automação, contato e privacidade.");
+    }
+    say("bot", "Olá. Sou o apoio do Já Deu Certo. Escolha um assunto ou escreva a palavra.");
+    document.getElementById("topics").innerHTML = Object.keys(TOPICS).map((k) => `<button type="button">${k}</button>`).join("");
+    document.getElementById("topics").addEventListener("click", (e) => { if (e.target.tagName === "BUTTON") answer(e.target.textContent); });
+    document.getElementById("ask").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const v = document.getElementById("askq").value.trim();
+      if (!v) return;
+      document.getElementById("askq").value = "";
+      answer(v);
+    });
+    document.getElementById("openbot").onclick = () => document.getElementById("panel").classList.add("open");
+    document.getElementById("closebot").onclick = () => document.getElementById("panel").classList.remove("open");
+    render();
+    load();
+  </script>
+</body>
+</html>
