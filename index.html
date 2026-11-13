@@ -30,7 +30,6 @@
     .logo span { color: var(--gold); }
     form { margin-left:auto; display:flex; gap:6px; }
     input, textarea { font: inherit; border:1px solid var(--line); border-radius:999px; padding:8px 12px; background:#fff; }
-    textarea { border-radius:12px; width:100%; }
     button, .chip { font: inherit; cursor:pointer; border:0; background:transparent; }
     .go { background:var(--forest); color:var(--paper); border-radius:999px; padding:8px 14px; }
     nav { display:flex; gap:6px; overflow:auto; padding-bottom:10px; }
@@ -85,20 +84,9 @@
   <main id="app"><p class="note">Carregando manchetes…</p></main>
   <footer>
     <div class="wrap">
-      <div>
-        <strong>Já Deu Certo</strong>
-        <p>Manchetes da Paraíba, do Brasil e do mundo. O texto completo fica no veículo de origem.</p>
-      </div>
-      <div>
-        <a href="#/sobre">Sobre</a><br />
-        <a href="#/contato">Contato</a><br />
-        <a href="#/privacidade">Privacidade</a><br />
-        <a href="#/termos">Termos</a>
-      </div>
-      <div>
-        <a href="#/automacao">Automação</a><br />
-        redacao@jadeucerto.com
-      </div>
+      <div><strong>Já Deu Certo</strong><p>Manchetes da Paraíba, do Brasil e do mundo. O texto completo fica no veículo de origem.</p></div>
+      <div><a href="#/sobre">Sobre</a><br /><a href="#/contato">Contato</a><br /><a href="#/privacidade">Privacidade</a><br /><a href="#/termos">Termos</a></div>
+      <div><a href="#/estados">Estados</a><br /><a href="#/automacao">Automação</a><br />redacao@jadeucerto.com</div>
     </div>
   </footer>
   <div id="bot">
@@ -115,26 +103,43 @@
       { url: "https://www.jornaldaparaiba.com.br/feed", source: "Jornal da Paraíba", region: "paraiba" },
       { url: "https://paraibaonline.com.br/feed/", source: "Paraíba Online", region: "paraiba" },
       { url: "https://portalcorreio.com.br/feed/", source: "Portal Correio", region: "paraiba" },
-      { url: "https://agenciabrasil.ebc.com.br/rss/ultimasnoticias/feed.xml", source: "Agência Brasil", region: "brasil" },
+      { url: "https://g1.globo.com/dynamo/pb/paraiba/rss2.xml", source: "g1 Paraíba", region: "paraiba" },
+      { url: "https://g1.globo.com/rss/g1/", source: "g1", region: "brasil" },
+      { url: "https://rss.uol.com.br/feed/noticias.xml", source: "UOL", region: "brasil" },
+      { url: "https://www.cnnbrasil.com.br/feed/", source: "CNN Brasil", region: "brasil" },
+      { url: "https://agenciabrasil.ebc.com.br/rss/politica/feed.xml", source: "Agência Brasil", region: "brasil", section: "politica" },
+      { url: "https://agenciabrasil.ebc.com.br/rss/economia/feed.xml", source: "Agência Brasil", region: "brasil", section: "economia" },
+      { url: "https://g1.globo.com/dynamo/pop-arte/rss2.xml", source: "g1 Pop & Arte", region: "brasil", section: "entretenimento" },
+      { url: "https://rss.uol.com.br/feed/entretenimento.xml", source: "UOL Entretenimento", region: "brasil", section: "entretenimento" },
       { url: "https://feeds.bbci.co.uk/portuguese/rss.xml", source: "BBC News Brasil", region: "mundo" }
     ];
     const NAV = [
-      ["Capa", "#/"], ["Paraíba", "#/secao/paraiba"], ["Brasil", "#/secao/brasil"], ["Mundo", "#/secao/mundo"],
-      ["Política", "#/secao/politica"], ["Economia", "#/secao/economia"], ["Esportes", "#/secao/esportes"], ["Cultura", "#/secao/cultura"]
+      ["Capa", "#/"], ["Paraíba", "#/secao/paraiba"], ["Estados", "#/estados"], ["Brasil", "#/secao/brasil"], ["Mundo", "#/secao/mundo"],
+      ["Política", "#/secao/politica"], ["Economia", "#/secao/economia"], ["Esportes", "#/secao/esportes"], ["Famosos", "#/secao/entretenimento"], ["Cultura", "#/secao/cultura"]
+    ];
+    const ESTADOS = [
+      ["AC","Acre","Rio Branco"],["AL","Alagoas","Maceió"],["AP","Amapá","Macapá"],["AM","Amazonas","Manaus"],
+      ["BA","Bahia","Salvador"],["CE","Ceará","Fortaleza"],["DF","Distrito Federal","Brasília"],["ES","Espírito Santo","Vitória"],
+      ["GO","Goiás","Goiânia"],["MA","Maranhão","São Luís"],["MT","Mato Grosso","Cuiabá"],["MS","Mato Grosso do Sul","Campo Grande"],
+      ["MG","Minas Gerais","Belo Horizonte"],["PA","Pará","Belém"],["PB","Paraíba","João Pessoa"],["PR","Paraná","Curitiba"],
+      ["PE","Pernambuco","Recife"],["PI","Piauí","Teresina"],["RJ","Rio de Janeiro","Rio de Janeiro"],["RN","Rio Grande do Norte","Natal"],
+      ["RS","Rio Grande do Sul","Porto Alegre"],["RO","Rondônia","Porto Velho"],["RR","Roraima","Boa Vista"],["SC","Santa Catarina","Florianópolis"],
+      ["SP","São Paulo","São Paulo"],["SE","Sergipe","Aracaju"],["TO","Tocantins","Palmas"]
     ];
     const RULES = [
       ["esportes", /futebol|campeonato|treze|botafogo|esporte|olimp|basquete|vôlei|volei|nba|libertadores|brasileir[aã]o/i],
       ["economia", /economia|d[oó]lar|infla|emprego|sal[aá]rio|pib|imposto|mercado|safra|juros|bolsa|selic/i],
       ["politica", /pol[ií]tica|prefeit|govern|c[aâ]mara|deputad|elei[cç]|assembleia|stf|senado|ministro/i],
+      ["entretenimento", /famos|celebr|novela|ator|atriz|cantor|cantora|bbb|casamento|separa[cç]|hollywood|oscar|influencer/i],
       ["cultura", /cultura|show|m[uú]sica|festival|cinema|forr[oó]|s[aã]o jo[aã]o|teatro|livro|arte/i]
     ];
     const TOPICS = {
-      "Paraíba": "A editoria Paraíba reúne o Jornal da Paraíba, Paraíba Online e Portal Correio. Cada card leva ao resumo e ao link da matéria original.",
-      "Brasil": "Brasil usa a Agência Brasil. Política e economia também aparecem nos filtros do menu.",
-      "Mundo": "Mundo vem da BBC News Brasil. O texto integral fica no site da BBC.",
+      "Paraíba": "A editoria Paraíba reúne jornais locais e o g1 Paraíba. Cada card leva ao resumo e ao link da matéria original.",
+      "Estados": "O menu Estados abre os 27 estados. A página só mostra manchete que cita o estado ou a capital.",
+      "Famosos": "Famosos vem do g1 Pop & Arte e do UOL Entretenimento. O texto completo fica no site deles.",
       "Anúncios": "Os espaços dizem PUBLICIDADE. Não há aposta nem cassino. Cookies de anúncio estão na Política de Privacidade.",
-      "Automação": "A página Automação explica a planilha e o Apps Script. Este index.html, no GitHub Pages, busca os RSS no navegador quando a página abre.",
-      "Contato": "Escreva para redacao@jadeucerto.com. Correção do texto original é do veículo que publicou.",
+      "Automação": "As manchetes entram sozinhas quando a página abre, a partir dos RSS. A planilha Google continua no Apps Script.",
+      "Contato": "Escreva para redacao@jadeucerto.com.",
       "Privacidade": "O site mede audiência com o Google Analytics informado no código. Detalhes estão em Privacidade."
     };
     let items = [];
@@ -169,7 +174,7 @@
     async function load() {
       const batches = await Promise.all(FEEDS.map(async (feed) => {
         try {
-          const res = await fetch("https://api.rss2json.com/v1/api.json?rss_url=" + encodeURIComponent(feed.url));
+          const res = await fetch("https://api.rss2json.com/v1/api.json?count=8&rss_url=" + encodeURIComponent(feed.url));
           const data = await res.json();
           if (data.status !== "ok") return [];
           return (data.items || []).map((item) => ({
@@ -179,7 +184,7 @@
             url: item.link,
             source: feed.source,
             region: feed.region,
-            section: sectionOf(item.title + " " + (item.content || item.description || ""), feed.region),
+            section: feed.section || sectionOf(item.title + " " + (item.content || item.description || ""), feed.region),
             publishedAt: item.pubDate,
             slug: slug(item.link)
           }));
@@ -205,11 +210,49 @@
     function page(html) { document.getElementById("app").innerHTML = html; }
     function home() {
       const [lead, ...rest] = items;
-      page(`<p class="note">${esc(note)}</p>${lead ? card(lead, true) : ""}<div class="ad">Publicidade</div><div class="grid two">${rest.slice(0, 4).map((item) => card(item, false)).join("")}</div>${list("Paraíba", items.filter((i) => i.region === "paraiba"))}${list("Brasil", items.filter((i) => i.region === "brasil"))}${list("Mundo", items.filter((i) => i.region === "mundo"))}`);
+      page(`<p class="note">${esc(note)}</p>${lead ? card(lead, true) : ""}<div class="ad">Publicidade</div><div class="grid two">${rest.slice(0, 4).map((item) => card(item, false)).join("")}</div>${list("Paraíba", items.filter((i) => i.region === "paraiba"))}${list("Brasil", items.filter((i) => i.region === "brasil"))}${list("Mundo", items.filter((i) => i.region === "mundo"))}${list("Famosos", items.filter((i) => i.section === "entretenimento"))}`);
+    }
+    function menciona(texto, termo) {
+      const n = String(texto || "").toLowerCase();
+      const q = String(termo || "").toLowerCase();
+      if (!q) return false;
+      let i = 0;
+      while ((i = n.indexOf(q, i)) !== -1) {
+        const antes = i === 0 || !/[a-záàâãéêíóôõúç]/.test(n[i - 1]);
+        const depois = i + q.length >= n.length || !/[a-záàâãéêíóôõúç]/.test(n[i + q.length]);
+        if (antes && depois) return true;
+        i += q.length;
+      }
+      return false;
+    }
+    function doEstado(uf) {
+      const row = ESTADOS.find((e) => e[0] === String(uf || "").toUpperCase());
+      if (!row) return [];
+      return items.filter((it) => menciona(it.title + " " + it.excerpt, row[1]) || menciona(it.title + " " + it.excerpt, row[2]));
+    }
+    function estados() {
+      const cards = ESTADOS.map(([uf, nome, capital]) => `<a class="card" style="text-decoration:none" href="#/estado/${uf.toLowerCase()}"><p class="kicker">${uf}</p><h3>${esc(nome)}</h3><p class="note">Capital ${esc(capital)} · ${doEstado(uf).length} manchetes agora</p></a>`).join("");
+      page(`<p class="kicker">Brasil</p><h1 style="font-family:Fraunces,serif">Estados</h1><p>Cada estado só lista manchete em que o nome do estado ou da capital está no título ou no resumo. Não há uma página vazia para cada cidade: o Google trata isso como conteúdo ralo e costuma negar o AdSense.</p><form id="cidade" style="margin:12px 0"><input id="cidadeq" placeholder="Nome da cidade" aria-label="Cidade" /><button class="go" type="submit">Ver cidade</button></form><div class="grid two">${cards}</div>`);
+      document.getElementById("cidade").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const q = document.getElementById("cidadeq").value.trim();
+        if (q) location.hash = "#/cidade/" + encodeURIComponent(q);
+      });
+    }
+    function paginaEstado(uf) {
+      const row = ESTADOS.find((e) => e[0] === String(uf || "").toUpperCase());
+      if (!row) return page(`<p>Estado não encontrado. Volte para <a href="#/estados">Estados</a>.</p>`);
+      const rows = doEstado(row[0]);
+      page(`<p class="kicker">${row[0]}</p><h1 style="font-family:Fraunces,serif">${esc(row[1])}</h1><p>${esc(row[1])}, capital ${esc(row[2])}. Só entram manchetes desta abertura que citam o estado ou a capital, com link para o veículo original.</p><p class="note">${rows.length} manchetes nesta abertura.</p>${ad()}<div class="grid two">${rows.map((item) => card(item, false)).join("") || "<p>Nenhuma manchete citou este estado agora. A página continua no ar, mas não inventamos notícia.</p>"}</div>`);
+    }
+    function paginaCidade(nome) {
+      const rows = items.filter((it) => menciona(it.title + " " + it.excerpt, nome));
+      page(`<p class="kicker">Cidade</p><h1 style="font-family:Fraunces,serif">${esc(nome)}</h1><p>Resultado ao vivo para este nome. Não criamos 5.570 páginas fixas de município, porque páginas iguais e vazias prejudicam a aprovação no AdSense.</p><p class="note">${rows.length} manchetes nesta abertura.</p><div class="grid two">${rows.map((item) => card(item, false)).join("") || "<p>Nenhuma manchete citou essa cidade agora.</p>"}</div>`);
     }
     function secao(name) {
       const rows = items.filter((i) => i.section === name || i.region === name);
-      page(`<p class="kicker">Editoria</p><h1 class="serif" style="font-family:Fraunces,serif">${esc(name)}</h1><p class="note">${rows.length} manchetes nesta abertura.</p>${ad()}<div class="grid two">${rows.map((item) => card(item, false)).join("") || "<p>Nada nesta editoria agora.</p>"}</div>`);
+      const titulo = name === "entretenimento" ? "Famosos" : name;
+      page(`<p class="kicker">Editoria</p><h1 style="font-family:Fraunces,serif">${esc(titulo)}</h1><p class="note">${rows.length} manchetes nesta abertura.</p>${ad()}<div class="grid two">${rows.map((item) => card(item, false)).join("") || "<p>Nada nesta editoria agora.</p>"}</div>`);
     }
     function noticia(id) {
       const item = items.find((i) => i.slug === id);
@@ -223,11 +266,11 @@
       page(`<h1 style="font-family:Fraunces,serif">Busca: ${esc(q)}</h1><p class="note">${rows.length} resultados nesta abertura.</p><div class="grid two">${rows.map((item) => card(item, false)).join("") || "<p>Nenhuma manchete com esse termo.</p>"}</div>`);
     }
     const STATIC = {
-      sobre: `<article class="prose"><h1>Sobre</h1><p>O Já Deu Certo é um portal de manchetes da Paraíba, do Brasil e do mundo. Não reescrevemos a reportagem: publicamos título, um trecho e o link do veículo.</p><p>Fontes desta edição: Jornal da Paraíba, Paraíba Online, Portal Correio, Agência Brasil e BBC News Brasil.</p><p>Editor responsável: redação Já Deu Certo. Contato: redacao@jadeucerto.com. Domínio previsto: jadeucerto.com.</p></article>`,
-      contato: `<article class="prose"><h1>Contato</h1><p>E-mail da redação: <a href="mailto:redacao@jadeucerto.com">redacao@jadeucerto.com</a>.</p><p>Para corrigir uma manchete, o caminho é o veículo que publicou o texto. Aqui dá para retirar um card se o link estiver errado.</p></article>`,
+      sobre: `<article class="prose"><h1>Sobre</h1><p>O Já Deu Certo é um portal de manchetes da Paraíba, do Brasil e do mundo. Não reescrevemos a reportagem: publicamos título, um trecho e o link do veículo.</p><p>Fontes: Jornal da Paraíba, Paraíba Online, Portal Correio, g1, UOL, CNN Brasil, Agência Brasil e BBC News Brasil. Famosos vem do g1 Pop e Arte e do UOL Entretenimento.</p><p>Editor responsável: redação Já Deu Certo. Contato: redacao@jadeucerto.com.</p></article>`,
+      contato: `<article class="prose"><h1>Contato</h1><p>E-mail da redação: <a href="mailto:redacao@jadeucerto.com">redacao@jadeucerto.com</a>.</p><p>Para corrigir uma manchete, o caminho é o veículo que publicou o texto.</p></article>`,
       privacidade: `<article class="prose"><h1>Privacidade</h1><p>Este site usa o Google Analytics (identificador G-1V0JM8J72L) para medir visitas. Quando o Google AdSense for ativado na conta ca-pub-5066020163837493, o Google pode usar cookies para anúncios.</p><p>Você pode recusar cookies de anúncio em <a href="https://adssettings.google.com" target="_blank" rel="noopener">Configurações de anúncios do Google</a>.</p><p>Não pedimos cadastro e não vendemos lista de leitores.</p></article>`,
       termos: `<article class="prose"><h1>Termos</h1><p>As manchetes são de terceiros. O título e o trecho existem para identificar a notícia e apontar a fonte. Os direitos do texto integral permanecem com o veículo original.</p><p>O site não oferece aposta, cassino, empréstimo nem conteúdo adulto.</p></article>`,
-      automacao: `<article class="prose"><h1>Automação</h1><p>No GitHub Pages, este index.html lê os RSS quando alguém abre a página. A foto sai do HTML da matéria, quando o veículo publica uma.</p><p>A planilha e o Apps Script ficam no Google, não neste repositório.</p></article>`
+      automacao: `<article class="prose"><h1>Automação</h1><p>Cada abertura da página busca de novo os RSS de jornais da Paraíba, g1, UOL, CNN Brasil, Agência Brasil e BBC. Não há robô publicando texto copiado.</p><p>A planilha e o Apps Script continuam no Google, com o gatilho de 15 minutos na função coletar.</p></article>`
     };
     function render() {
       const hash = location.hash || "#/";
@@ -238,6 +281,9 @@
         return `<button class="${on ? "on" : ""}" type="button" data-href="${href}">${label}</button>`;
       }).join("");
       if (!name) return home();
+      if (name === "estados") return estados();
+      if (name === "estado" && arg) return paginaEstado(arg);
+      if (name === "cidade" && arg) return paginaCidade(decodeURIComponent(arg));
       if (name === "secao" && arg) return secao(decodeURIComponent(arg));
       if (name === "noticia" && arg) return noticia(arg);
       if (name === "busca") return busca(decodeURIComponent(arg || ""));
@@ -264,7 +310,7 @@
     function answer(text) {
       say("user", text);
       const key = Object.keys(TOPICS).find((k) => text.toLowerCase().includes(k.toLowerCase()));
-      say("bot", key ? TOPICS[key] : "Posso falar sobre Paraíba, Brasil, Mundo, anúncios, automação, contato e privacidade.");
+      say("bot", key ? TOPICS[key] : "Posso falar sobre Paraíba, Estados, Famosos, anúncios, automação, contato e privacidade.");
     }
     say("bot", "Olá. Sou o apoio do Já Deu Certo. Escolha um assunto ou escreva a palavra.");
     document.getElementById("topics").innerHTML = Object.keys(TOPICS).map((k) => `<button type="button">${k}</button>`).join("");
