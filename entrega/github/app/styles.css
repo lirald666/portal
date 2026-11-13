@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+@theme {
+  --font-serif: "Fraunces", "Times New Roman", serif;
+  --font-sans: "Source Sans 3", "Segoe UI", sans-serif;
+  --color-ink: #14211c;
+  --color-paper: #f4efe4;
+  --color-card: #fffdf8;
+  --color-forest: #0e3b2e;
+  --color-moss: #1d6b4a;
+  --color-gold: #a9782f;
+  --color-clay: #8d3429;
+  --color-line: #e4dccb;
+  --color-muted: #5d675f;
+}
+
+@layer base {
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--font-sans);
+    background: var(--color-paper);
+    color: var(--color-ink);
+  }
+  button:not(:disabled), [role="button"]:not(:disabled) { cursor: pointer; }
+  ::selection { background: #d7ecdf; }
+}
+
+.serif { font-family: var(--font-serif); }
+
+.kicker {
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-moss);
+}
+
+.ad-slot {
+  border: 1px dashed #c9bfa8;
+  background: repeating-linear-gradient(-45deg, #fbf8f1, #fbf8f1 8px, #f3eee3 8px, #f3eee3 16px);
+  color: #7a7366;
+  min-height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-radius: 12px;
+}
