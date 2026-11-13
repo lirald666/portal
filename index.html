@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="google-adsense-account" content="ca-pub-5066020163837493">
+  <title>Suporte Inteligente | Já Deu Certo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5066020163837493"
+     crossorigin="anonymous"></script>
+  <style>
+    :root {
+      --bg: #0f1419; --surface: #1a2332; --surface-2: #243044; --border: #2d3a4f;
+      --text: #e8eef7; --text-muted: #8b9bb4; --primary: #3b82f6; --primary-hover: #2563eb;
+      --accent: #22c55e; --danger: #ef4444; --bot-bubble: #1e293b; --user-bubble: #1d4ed8;
+      --radius: 16px; --header-h: 64px; --input-h: 72px; --theme-color: #3b82f6;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; width: 100%; overflow: hidden; font-family: 'Inter', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); transition: background 0.5s ease; }
+    body { display: flex; flex-direction: column; }
+
+    body.theme-acertos { --bg:#1a120a; --surface:#2a1c10; --surface-2:#3d2a18; --border:#5c4030; --bot-bubble:#2a1c10; --user-bubble:#e67e22; --primary:#e67e22; --primary-hover:#d35400; --theme-color:#e67e22; }
+    body.theme-feiticeira { --bg:#120a1a; --surface:#1c1030; --surface-2:#2a1848; --border:#4a3080; --bot-bubble:#1c1030; --user-bubble:#9b59b6; --primary:#9b59b6; --primary-hover:#8e44ad; --theme-color:#9b59b6; }
+    body.theme-brasileira { --bg:#0a1a0f; --surface:#102a18; --surface-2:#183d28; --border:#2d5c40; --bot-bubble:#102a18; --user-bubble:#27ae60; --primary:#27ae60; --primary-hover:#1e8449; --theme-color:#27ae60; }
+    body.theme-tiger { --bg:#121212; --surface:#1e1e1e; --surface-2:#2c2c2c; --border:#444; --bot-bubble:#1e1e1e; --user-bubble:#7f8c8d; --primary:#95a5a6; --primary-hover:#7f8c8d; --theme-color:#95a5a6; }
+    body.theme-superacertos { --bg:#0a1220; --surface:#0f1c30; --surface-2:#183050; --border:#2a4a70; --bot-bubble:#0f1c30; --user-bubble:#2980b9; --primary:#3498db; --primary-hover:#2980b9; --theme-color:#3498db; }
+    body.theme-superbancas { --bg:#050505; --surface:#111; --surface-2:#1a1a1a; --border:#333; --bot-bubble:#111; --user-bubble:#222; --primary:#555; --primary-hover:#444; --theme-color:#888; }
+
+    .header { height: var(--header-h); min-height: var(--header-h); background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 16px; display: flex; align-items: center; gap: 12px; flex-shrink: 0; z-index: 20; transition: background 0.5s ease, border-color 0.5s ease; }
+    .header-logo { width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary), var(--theme-color)); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+    .header-info { flex: 1; min-width: 0; }
+    .header-info h1 { font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .header-info p { font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+    .status-dot { width: 7px; height: 7px; background: var(--accent); border-radius: 50%; animation: pulse 2s infinite; flex-shrink: 0; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+    .reset-btn { background: var(--surface-2); border: 1px solid var(--border); color: var(--text-muted); padding: 6px 10px; border-radius: 8px; font-size: 12px; cursor: pointer; transition: all 0.2s; flex-shrink: 0; white-space: nowrap; }
+    .reset-btn:hover { color: var(--text); border-color: var(--text-muted); }
+
+    .chat-wrapper { flex: 1; display: flex; flex-direction: column; min-height: 0; max-width: 900px; width: 100%; margin: 0 auto; }
+    .messages { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; padding: 16px 14px 20px; display: flex; flex-direction: column; gap: 14px; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; scrollbar-width: thin; scrollbar-color: #3d4f6a transparent; }
+    .messages::-webkit-scrollbar { width: 8px; }
+    .messages::-webkit-scrollbar-track { background: rgba(255,255,255,0.03); border-radius: 4px; }
+    .messages::-webkit-scrollbar-thumb { background: #3d4f6a; border-radius: 4px; }
+
+    .message { display: flex; gap: 10px; max-width: 90%; animation: fadeIn 0.25s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    .message.bot { align-self: flex-start; }
+    .message.user { align-self: flex-end; flex-direction: row-reverse; }
+    .avatar { width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+    .message.bot .avatar { background: linear-gradient(135deg, var(--primary), var(--theme-color)); }
+    .message.user .avatar { background: var(--surface-2); }
+    .bubble { padding: 11px 14px; border-radius: var(--radius); font-size: 14px; line-height: 1.55; word-break: break-word; }
+    .message.bot .bubble { background: var(--bot-bubble); border: 1px solid var(--border); border-top-left-radius: 4px; }
+    .message.user .bubble { background: var(--user-bubble); border-top-right-radius: 4px; color: #fff; }
+    .bubble strong { color: #93c5fd; }
+    body.theme-acertos .bubble strong { color: #f5b041; }
+    body.theme-feiticeira .bubble strong { color: #d2b4de; }
+    body.theme-brasileira .bubble strong { color: #82e0aa; }
+    body.theme-tiger .bubble strong { color: #bdc3c7; }
+    body.theme-superacertos .bubble strong { color: #85c1e9; }
+    body.theme-superbancas .bubble strong { color: #aaa; }
+    .message.user .bubble strong { color: #fff; opacity: 0.9; }
+    .bubble ul, .bubble ol { margin: 8px 0 4px 18px; }
+    .bubble li { margin-bottom: 4px; }
+    .time { font-size: 10px; color: var(--text-muted); margin-top: 3px; padding-left: 2px; }
+    .message.user .time { text-align: right; padding-right: 2px; }
+
+    .quick-replies { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .quick-btn { background: var(--surface-2); border: 1px solid var(--border); color: var(--text); padding: 8px 13px; border-radius: 20px; font-size: 13px; cursor: pointer; transition: all 0.2s; font-family: inherit; white-space: nowrap; }
+    .quick-btn:hover { background: var(--primary); border-color: var(--primary); transform: translateY(-1px); color: #fff; }
+    .quick-btn.confirm { border-color: var(--accent); color: #86efac; }
+    .quick-btn.confirm:hover { background: #166534; border-color: #166534; color: #fff; }
+    .quick-btn.deny { border-color: var(--danger); color: #fca5a5; }
+    .quick-btn.deny:hover { background: #991b1b; border-color: #991b1b; color: #fff; }
+    .quick-btn.attendant { background: linear-gradient(135deg, #f59e0b, #d97706); border: none; color: #fff; font-weight: 600; }
+    .quick-btn.attendant:hover { background: linear-gradient(135deg, #d97706, #b45309); }
+    .quick-btn.arrived { background: linear-gradient(135deg, #22c55e, #16a34a); border: none; color: #fff; font-weight: 600; font-size: 14px; padding: 12px 20px; }
+    .quick-btn.arrived:hover { background: linear-gradient(135deg, #16a34a, #15803d); }
+
+    .typing { display: flex; gap: 5px; padding: 12px 16px; background: var(--bot-bubble); border: 1px solid var(--border); border-radius: var(--radius); border-top-left-radius: 4px; width: fit-content; }
+    .typing span { width: 7px; height: 7px; background: var(--text-muted); border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; }
+    .typing span:nth-child(1) { animation-delay: -0.32s; }
+    .typing span:nth-child(2) { animation-delay: -0.16s; }
+    @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+
+    .transfer-msg { text-align: center; padding: 16px; color: var(--theme-color); font-weight: 500; font-size: 14px; animation: fadeIn 0.4s ease; }
+    .transfer-msg .dots span { animation: blink 1.4s infinite; opacity: 0; }
+    .transfer-msg .dots span:nth-child(1) { animation-delay: 0s; }
+    .transfer-msg .dots span:nth-child(2) { animation-delay: 0.2s; }
+    .transfer-msg .dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes blink { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
+
+    .queue-box { background: var(--surface-2); border: 1px solid var(--border); border-radius: 14px; padding: 16px; margin-top: 10px; text-align: center; }
+    .queue-box h4 { font-size: 14px; margin-bottom: 8px; color: var(--theme-color); }
+    .queue-timer { font-size: 28px; font-weight: 700; color: var(--text); letter-spacing: 2px; margin: 10px 0; font-variant-numeric: tabular-nums; }
+    .queue-info { font-size: 12px; color: var(--text-muted); margin-bottom: 12px; line-height: 1.4; }
+    .queue-warning { background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.4); color: #fbbf24; padding: 10px 12px; border-radius: 10px; font-size: 12.5px; margin-bottom: 12px; line-height: 1.45; }
+    .adsense-slot { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 8px; margin: 12px 0; min-height: 100px; display: flex; align-items: center; justify-content: center; overflow: hidden; width: 100%; }
+    .adsense-slot ins { width: 100% !important; }
+
+    .input-area { flex-shrink: 0; background: var(--surface); border-top: 1px solid var(--border); padding: 12px 14px; display: flex; gap: 10px; align-items: flex-end; min-height: var(--input-h); }
+    .input-wrapper { flex: 1; background: var(--surface-2); border: 1px solid var(--border); border-radius: 22px; padding: 10px 14px; display: flex; align-items: center; min-height: 44px; }
+    .input-wrapper:focus-within { border-color: var(--primary); }
+    #userInput { flex: 1; background: transparent; border: none; outline: none; color: var(--text); font-size: 14.5px; font-family: inherit; resize: none; max-height: 100px; line-height: 1.4; min-height: 22px; }
+    #userInput::placeholder { color: var(--text-muted); }
+    .send-btn { width: 44px; height: 44px; background: var(--primary); border: none; border-radius: 50%; color: white; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .send-btn:hover { background: var(--primary-hover); }
+    .send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    @media (max-width: 600px) { .message { max-width: 94%; } .header { padding: 0 12px; } .messages { padding: 12px 10px 16px; } .input-area { padding: 10px; } }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-logo">🤖</div>
+    <div class="header-info">
+      <h1 id="headerTitle">Suporte Inteligente</h1>
+      <p><span class="status-dot"></span> <span id="headerStatus">Online • Atendimento inteligente</span></p>
+    </div>
+    <button class="reset-btn" onclick="resetChat()">🔄 Nova conversa</button>
+  </header>
+
+  <div class="chat-wrapper">
+    <div class="messages" id="messages"></div>
+    <div class="input-area">
+      <div class="input-wrapper">
+        <textarea id="userInput" rows="1" placeholder="Digite sua mensagem..." onkeydown="handleKey(event)"></textarea>
+      </div>
+      <button class="send-btn" id="sendBtn" onclick="sendMessage()">➤</button>
+    </div>
+  </div>
+
+  <script>
+    // ============================================
+    // TEXTOS COMPARTILHADOS
+    // ============================================
+    const COTACAO_PADRAO = `**Cotações oficiais (por R$ 1,00 apostado):**
+• **Milhar**: R$ 8.000,00
+• **Centena**: R$ 800,00
+• **Dezena**: R$ 80,00
+• **Grupo**: R$ 20,00
+• **Unidade**: R$ 8,00`;
+
+    const COTACAO_SUPER = `**Cotações da SuperBancas (por R$ 1,00 apostado) — as melhores do mercado:**
+• **Milhar**: R$ 9.000,00
+• **Centena**: R$ 900,00
+• **Dezena**: R$ 90,00
+• **Grupo**: R$ 22,00
+• **Unidade**: R$ 9,00`;
+
+    const BONUS_PADRAO = `**Bônus de recarga:**
+• Até **25%** para cliente novo (primeira recarga)
+• **15%** em dias de Loteria Federal
+• **10%** todos os dias normais
+O bônus vale apenas nas **primeiras recargas do dia**. Após a primeira recarga do dia, as seguintes não recebem bônus.`;
+
+    const SAQUE_RECUSADO = `**Sobre saque recusado:**
+
+Se o seu saque foi recusado, é necessário **aguardar** até que o problema seja resolvido.
+
+**Possíveis motivos:**
+• Dados divergentes (nome, CPF, chave Pix)
+• Instabilidade temporária no sistema
+• Recusa pelo banco receptor
+
+**O que fazer:**
+1. Aguarde de **30 minutos a 1 hora** para o sistema processar novamente
+2. Espere no mínimo **5 minutos** antes de tentar um novo saque
+3. Confira se seus dados cadastrais estão corretos e iguais aos dados da conta Pix
+
+Se já passou esse tempo e o problema **não foi resolvido**, clique em **Chamar Atendente** para falar com um humano.`;
+
+    const TUTORIAL_LOTERIAS = `**📖 Tutorial: Como jogar nas Loterias**
+
+**1. Entenda as modalidades**
+• **Grupo**: aposta no animal (1 ao 25). Paga cerca de 20x
+• **Dezena**: últimos 2 dígitos do resultado. Paga cerca de 80x
+• **Centena**: últimos 3 dígitos. Paga cerca de 800x
+• **Milhar**: os 4 dígitos completos. Paga cerca de 8.000x (ou 9.000x na SuperBancas)
+
+**2. Como fazer uma aposta (pule)**
+1. Entre na plataforma
+2. Escolha a modalidade (Grupo, Dezena, Centena ou Milhar)
+3. Digite o número ou escolha o animal
+4. Informe o valor da aposta
+5. Confirme e pague via Pix se necessário
+
+**3. Se o resultado da loteria não ocorrer**
+Se o sorteio do dia **não acontecer** (cancelamento, atraso ou falha na divulgação), a sua **pule continua valendo** automaticamente para o **sorteio do dia seguinte**. Você não precisa refazer a aposta.
+
+**4. Dicas importantes**
+• Comece com valores baixos até entender o sistema
+• Acompanhe o horário dos resultados (cada região tem seus horários)
+• Guarde o comprovante da aposta
+• Jogue com responsabilidade — nunca aposte mais do que pode perder
+
+**5. Conferindo o resultado**
+Após o sorteio, o resultado aparece na plataforma. Se você acertou, o prêmio é creditado automaticamente na sua conta e pode ser sacado via Pix.`;
+
+    const BINGO_INFO = `**Sobre o Bingo:**
+
+O **Bingo** é uma modalidade disponível em várias plataformas parceiras.
+
+**Como funciona em geral:**
+• Você compra cartelas digitais
+• Os números são sorteados ao vivo ou em rodadas automáticas
+• Quem completar o padrão da cartela (linha, coluna, cartela cheia etc.) ganha o prêmio
+
+**Dúvidas comuns:**
+• **Cartela não aparece / não valida**: limpe o cache, use o **link oficial** do app e verifique se a recarga foi feita na modalidade correta
+• **Prêmio do bingo não creditado**: aguarde alguns minutos. Se não cair, abra um chamado com **Chamar Atendente** e envie o comprovante/print da cartela
+• **Horários e rodadas**: consultados dentro do próprio app, na seção Bingo
+
+Este suporte orienta sobre regras gerais. Para casos específicos de prêmio ou cartela, use o botão de atendente.`;
+
+    const CASSINO_INFO = `**Sobre a modalidade Cassino:**
+
+⚠️ **Importante:** o suporte deste chat é **exclusivo para a modalidade de Loterias**.
+
+A modalidade **Cassino** funciona em **outro sistema**, fora da área de jurisdição deste suporte. Por isso o atendimento para cassino é **limitado**.
+
+**Problemas comuns no cassino:**
+• Alguns jogos não rodam porque o usuário acessou por **links externos não oficiais**
+• Sempre use o **link oficial** do aplicativo para evitar erros e jogos que não abrem
+• Prêmios não pagos no cassino: este suporte **não resolve** questões de prêmio do cassino. Procure o suporte específico do cassino ou abra um chamado com atendente
+• **Recarga não aparece no saldo do cassino:** isso acontece quando a recarga foi feita na **modalidade errada** (ex.: loterias em vez de cassino). **Não é possível mudar nem estornar** a recarga. O valor permanece na modalidade em que foi creditado`;
+
+    const EXCLUIR_CONTA = `**Sobre exclusão de conta:**
+
+O sistema de suporte **não tem acesso direto às contas dos usuários**.
+
+Para excluir sua conta:
+1. Basta **ficar sem acessar** o aplicativo por aproximadamente **15 dias**
+2. O aplicativo entra em modo de **usuário inativo**
+3. Depois de um período, a conta é **excluída automaticamente** pelo sistema
+
+Não é necessário abrir chamado para exclusão — o processo é automático por inatividade.`;
+
+    const PULE_VALIDADE = `**Sobre a validade da pule:**
+
+Quando o **resultado da loteria não ocorre** no dia (sorteio cancelado, atrasado ou não divulgado), a sua **pule permanece válida** e passa a valer automaticamente para o **sorteio do dia seguinte**.
+
+Você **não precisa** refazer a aposta. Basta acompanhar o próximo resultado oficial.`;
+
+    // ============================================
+    // BASE DE CONHECIMENTO
+    // ============================================
+    const knowledgeBase = {
+      acertosclub: {
+        name: "Acertos Club",
+        aliases: ["acertos", "acertos club", "acertosclub", "acertos.club", "acerto", "acerto club", "acertos clube", "app acertos", "aplicativo acertos", "acertos bet"],
+        icon: "🦉",
+        theme: "acertos",
+        officialLink: "https://app.acertos.club/pr/sbrqjugZ",
+        suporteLink: "https://app.acertos.club/pr/sbrqjugZ",
+        info: {
+          geral: `O **Acertos Club** é uma das principais bancas de jogos online e **Loterias** do Brasil. Destaca-se pelas melhores cotações do mercado, pagamentos de prêmios imediatos via Pix e interface otimizada para celular.\n\n⚠️ Este suporte atende prioritariamente a modalidade de **Loterias**.`,
+          bonus: BONUS_PADRAO,
+          cotacao: COTACAO_PADRAO,
+          deposito: `**Como depositar no Acertos Club:**
+1. Acesse a plataforma pelo link oficial
+2. Vá em Depósito / Recarga
+3. Escolha Pix (instantâneo)
+4. Escaneie o QR Code ou copie a chave
+5. O valor cai em segundos e o bônus é aplicado automaticamente (se for a primeira recarga do dia).
+
+⚠️ Atenção: escolha a modalidade correta (Loterias ou Cassino). Recarga feita na modalidade errada **não pode ser transferida nem estornada**.`,
+          saque: `**Saques no Acertos Club:**
+• Pagamento de prêmios (loterias) é **imediato** via Pix
+• Sem taxas e sem burocracia
+
+` + SAQUE_RECUSADO,
+          jogos: `O Acertos Club oferece:
+• **Loterias** (todas as regiões) — suporte completo
+• **Bingo**
+• Apostas esportivas
+• Cassino online (slots etc.) — suporte limitado (outro sistema)
+
+**Importante:** se o resultado da loteria não ocorrer no dia, a **pule fica valendo para o sorteio do outro dia**.`,
+          bingo: BINGO_INFO,
+          pule: PULE_VALIDADE,
+          cassino: CASSINO_INFO + `\n\n**Link oficial do Acertos Club:**\nhttps://app.acertos.club/pr/sbrqjugZ`,
+          tutorial: TUTORIAL_LOTERIAS,
+          excluir: EXCLUIR_CONTA,
+          suporte: `Suporte oficial do Acertos Club:
+• Este chat atende **principalmente Loterias e Bingo**
+• Cassino tem suporte limitado (sistema separado)
+• Chat interno 24 horas disponível na plataforma`,
+          problemas: `**Problemas frequentes e soluções:**
+• **App lento / não abre**: limpe cache, use o **link oficial** e evite links externos
+• **Depósito não creditado**: aguarde até 5 minutos. Se não cair, abra suporte com o print
+• **Saque pendente / recusado**: veja as orientações de saque recusado
+• **Jogo de cassino não roda**: geralmente por link não oficial — use o link oficial
+• **Recarga não aparece no cassino**: foi feita na modalidade errada (não estorna)
+• **Resultado não saiu**: a pule continua válida para o próximo sorteio`
+        }
+      },
+
+      feiticeiraclub: {
+        name: "Feiticeira Club",
+        aliases: ["feiticeira", "feiticeira club", "feiticeiraclub", "feiticeira.club", "feiticeira banca", "app feiticeira", "banca feiticeira"],
+        icon: "🧙‍♀️",
+        theme: "feiticeira",
+        officialLink: "https://app.feiticeira.vip/pr/PRBJ9rmd",
+        suporteLink: "https://app.feiticeira.vip/pr/PRBJ9rmd",
+        info: {
+          geral: `A **Feiticeira Club** é uma banca parceira da SuperBancas, conhecida por acesso fácil, pagamentos instantâneos via Pix e navegação intuitiva.\n\n⚠️ Este suporte prioriza a modalidade de **Loterias**.`,
+          bonus: BONUS_PADRAO,
+          cotacao: COTACAO_PADRAO,
+          deposito: `Depósitos via **Pix**. Escolha a modalidade correta (Loterias ou Cassino). Recarga na modalidade errada **não pode ser mudada nem estornada**.`,
+          saque: `Saques via Pix são processados de forma ágil.\n\n` + SAQUE_RECUSADO,
+          jogos: `A Feiticeira oferece **Loterias**, **Bingo** e cassino. O suporte deste chat é focado em **Loterias e Bingo**.\n\nSe o resultado da loteria não ocorrer, a **pule vale para o sorteio do dia seguinte**.`,
+          bingo: BINGO_INFO,
+          pule: PULE_VALIDADE,
+          cassino: CASSINO_INFO + `\n\n**Acesse sempre pelo link oficial da plataforma.**`,
+          tutorial: TUTORIAL_LOTERIAS,
+          excluir: EXCLUIR_CONTA,
+          suporte: `Suporte disponível neste chat para **Loterias e Bingo**. Cassino tem atendimento limitado.`,
+          problemas: `Problemas comuns: use o link oficial, limpe o cache. Recarga na modalidade errada não estorna. Saque recusado: aguarde 30 min a 1h. Resultado não saiu: pule vale no dia seguinte.`
+        }
+      },
+
+      superacertos: {
+        name: "Super Acertos",
+        aliases: ["super acertos", "superacertos", "super acertos club", "superacerto", "super acerto"],
+        icon: "⭐",
+        theme: "superacertos",
+        officialLink: "https://app.superacertos.club/pr/DiNatQPp",
+        suporteLink: "https://app.superacertos.club/pr/DiNatQPp",
+        info: {
+          geral: `O **Super Acertos** faz parte do ecossistema de bancas digitais focadas em **Loterias** e jogos online.\n\n⚠️ Suporte prioritário para **Loterias**.`,
+          bonus: BONUS_PADRAO,
+          cotacao: COTACAO_PADRAO,
+          deposito: `Depósito via Pix. Atenção à modalidade (Loterias x Cassino). Recarga na modalidade errada **não estorna**.`,
+          saque: `Saques processados via Pix.\n\n` + SAQUE_RECUSADO,
+          jogos: `Modalidades de **Loterias**, **Bingo** e cassino. Este chat foca em **Loterias e Bingo**.\n\nSe o resultado não ocorrer, a **pule fica válida para o sorteio do outro dia**.`,
+          bingo: BINGO_INFO,
+          pule: PULE_VALIDADE,
+          cassino: CASSINO_INFO,
+          tutorial: TUTORIAL_LOTERIAS,
+          excluir: EXCLUIR_CONTA,
+          suporte: `Suporte interno focado em Loterias e Bingo. Cassino: suporte limitado.`,
+          problemas: `Use link oficial. Cache limpo. Recarga errada não muda. Saque recusado: aguarde. Resultado não saiu: pule vale no dia seguinte.`
+        }
+      },
+
+      bancabrasileira: {
+        name: "Banca Brasileira",
+        aliases: ["banca brasileira", "bancabrasileira", "banca br", "banca brasil", "brasileira", "banca brasileira club"],
+        icon: "🇧🇷",
+        theme: "brasileira",
+        officialLink: "https://app.bancabrasileira.com.br/pr/J2AWPe67",
+        suporteLink: "https://app.bancabrasileira.com.br/pr/J2AWPe67",
+        info: {
+          geral: `A **Banca Brasileira** é uma das plataformas parceiras da SuperBancas. Jogos online com Pix e acesso rápido.\n\n⚠️ Este suporte prioriza **Loterias**.`,
+          bonus: BONUS_PADRAO,
+          cotacao: COTACAO_PADRAO,
+          deposito: `Depósitos via **Pix**. Escolha a modalidade correta. Recarga na modalidade errada **não pode ser transferida nem estornada**.`,
+          saque: `Saques via Pix.\n\n` + SAQUE_RECUSADO,
+          jogos: `**Loterias**, **Bingo** e cassino. Suporte deste chat: **Loterias e Bingo**.\n\nSe o resultado da loteria não ocorrer, a **pule vale para o sorteio do dia seguinte**.`,
+          bingo: BINGO_INFO,
+          pule: PULE_VALIDADE,
+          cassino: CASSINO_INFO + `\n\n**Link oficial:** https://app.bancabrasileira.com.br/pr/J2AWPe67`,
+          tutorial: TUTORIAL_LOTERIAS,
+          excluir: EXCLUIR_CONTA,
+          suporte: `Suporte da Banca Brasileira focado em Loterias e Bingo. Cassino tem atendimento limitado.`,
+          problemas: `Link oficial, limpeza de cache. Recarga errada não estorna. Saque recusado: aguarde 30 min–1h. Resultado não saiu: pule vale no próximo sorteio.`
+        }
+      },
+
+      superbancas: {
+        name: "SuperBancas",
+        aliases: ["superbancas", "super bancas", "super banca", "super bancas.org", "superbanca"],
+        icon: "🏆",
+        theme: "superbancas",
+        officialLink: "https://app.superbancas.club/pr/Q3WZ1haO",
+        suporteLink: "https://app.superbancas.club/pr/Q3WZ1haO",
+        info: {
+          geral: `A **SuperBancas** reúne várias bancas digitais. Oferece as **melhores cotações** e acesso via Pix.\n\n⚠️ Este suporte prioriza a modalidade de **Loterias**.`,
+          bonus: `A **SuperBancas não possui bônus de recarga**. O diferencial são as **cotações mais altas**.`,
+          cotacao: COTACAO_SUPER,
+          deposito: `Depósitos via Pix. Atenção: recarga na modalidade errada (Loterias x Cassino) **não pode ser mudada nem estornada**.`,
+          saque: `Saques via Pix.\n\n` + SAQUE_RECUSADO,
+          jogos: `Hub de bancas com **Loterias**, **Bingo** e cassino. Suporte deste chat: **Loterias e Bingo**.\n\nSe o resultado não ocorrer, a **pule fica valendo para o sorteio do outro dia**.`,
+          bingo: BINGO_INFO,
+          pule: PULE_VALIDADE,
+          cassino: CASSINO_INFO + `\n\n**Site oficial:** https://app.superbancas.club/pr/Q3WZ1haO`,
+          tutorial: TUTORIAL_LOTERIAS,
+          excluir: EXCLUIR_CONTA,
+          suporte: `Suporte geral da SuperBancas (Loterias e Bingo). Cassino: suporte limitado.`,
+          problemas: `Use o site oficial. Cache. Recarga errada não estorna. Saque recusado: aguarde. Resultado não saiu: pule vale no dia seguinte.`
+        }
+      },
+
+      tigerclub: {
+        name: "Tiger Club",
+        aliases: ["tiger club", "tigerclub", "tigrinho", "tiger", "tigre club", "tiger banca", "fortune tiger", "banca tiger"],
+        icon: "🐯",
+        theme: "tiger",
+        officialLink: "https://app.superacertos.club/pr/DiNatQPp",
+        suporteLink: "https://app.superacertos.club/pr/DiNatQPp",
+        info: {
+          geral: `O **Tiger Club** é banca parceira da SuperBancas, com jogos online, Pix e suporte.\n\n⚠️ Este suporte prioriza **Loterias**. Cassino tem atendimento limitado.`,
+          bonus: BONUS_PADRAO,
+          cotacao: COTACAO_PADRAO,
+          deposito: `Depósito via Pix. Escolha a modalidade correta. Recarga na modalidade errada **não estorna**.`,
+          saque: `Saques via Pix.\n\n` + SAQUE_RECUSADO,
+          jogos: `**Loterias**, **Bingo** e cassino. Suporte deste chat focado em **Loterias e Bingo**.\n\nSe o resultado da loteria não ocorrer, a **pule vale para o sorteio do dia seguinte**.`,
+          bingo: BINGO_INFO,
+          pule: PULE_VALIDADE,
+          cassino: CASSINO_INFO + `\n\n**Acesse sempre pelo link oficial.** Jogos que não abrem costumam ser por links externos não oficiais.`,
+          tutorial: TUTORIAL_LOTERIAS,
+          excluir: EXCLUIR_CONTA,
+          suporte: `Suporte focado em Loterias e Bingo. Para cassino (prêmios, jogos), suporte é limitado — use atendente se necessário.`,
+          problemas: `Link oficial evita jogos que não rodam. Recarga errada não muda. Saque recusado: aguarde 30 min a 1h. Resultado não saiu: pule vale no próximo dia.`
+        }
+      }
+    };
+
+    // ============================================
+    // ESTADO
+    // ============================================
+    let state = 'asking_platform';
+    let pendingPlatform = null;
+    let currentPlatform = null;
+    let isTyping = false;
+    let queueTimerInterval = null;
+    let queueSecondsLeft = 0;
+
+    const messagesEl = document.getElementById('messages');
+    const inputEl = document.getElementById('userInput');
+    const sendBtn = document.getElementById('sendBtn');
+
+    function applyTheme(themeName) {
+      document.body.className = '';
+      if (themeName) document.body.classList.add('theme-' + themeName);
+    }
+    function updateHeader(platformKey) {
+      const p = knowledgeBase[platformKey];
+      if (p) {
+        document.getElementById('headerTitle').textContent = p.name + ' • Suporte';
+        document.getElementById('headerStatus').textContent = 'Online • ' + p.name;
+      }
+    }
+
+    function normalize(str) {
+      return str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
+    }
+    function getTime() {
+      return new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    }
+    function scrollToBottom() {
+      requestAnimationFrame(() => { messagesEl.scrollTop = messagesEl.scrollHeight; });
+    }
+    function formatText(text) {
+      return text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+    }
+
+    function createMessage(text, isBot = true, extraHTML = '') {
+      const div = document.createElement('div');
+      div.className = `message ${isBot ? 'bot' : 'user'}`;
+      const avatar = document.createElement('div');
+      avatar.className = 'avatar';
+      avatar.textContent = isBot ? '🤖' : '👤';
+      const content = document.createElement('div');
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble';
+      bubble.innerHTML = formatText(text) + extraHTML;
+      const time = document.createElement('div');
+      time.className = 'time';
+      time.textContent = getTime();
+      content.appendChild(bubble);
+      content.appendChild(time);
+      div.appendChild(avatar);
+      div.appendChild(content);
+      messagesEl.appendChild(div);
+      scrollToBottom();
+      return div;
+    }
+
+    function showTyping() {
+      if (isTyping) return;
+      isTyping = true;
+      const div = document.createElement('div');
+      div.className = 'message bot';
+      div.id = 'typingIndicator';
+      div.innerHTML = `<div class="avatar">🤖</div><div class="typing"><span></span><span></span><span></span></div>`;
+      messagesEl.appendChild(div);
+      scrollToBottom();
+    }
+    function hideTyping() {
+      isTyping = false;
+      const el = document.getElementById('typingIndicator');
+      if (el) el.remove();
+    }
+    function botReply(text, delay = 700, extraHTML = '') {
+      showTyping();
+      return new Promise(resolve => {
+        setTimeout(() => {
+          hideTyping();
+          createMessage(text, true, extraHTML);
+          resolve();
+        }, delay);
+      });
+    }
+    function showTransferring(platformName) {
+      return new Promise(resolve => {
+        const div = document.createElement('div');
+        div.className = 'transfer-msg';
+        div.id = 'transferMsg';
+        div.innerHTML = `🔄 Transferindo para o suporte do <strong>${platformName}</strong><span class="dots"><span>.</span><span>.</span><span>.</span></span>`;
+        messagesEl.appendChild(div);
+        scrollToBottom();
+        setTimeout(() => {
+          const el = document.getElementById('transferMsg');
+          if (el) el.remove();
+          resolve();
+        }, 1800);
+      });
+    }
+
+    function formatMMSS(seconds) {
+      const m = Math.floor(seconds / 60);
+      const s = seconds % 60;
+      return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+    }
+
+    // AdSense — publisher ca-pub-5066020163837493
+    // Para anúncio de unidade específica: crie um bloco no AdSense e coloque o data-ad-slot abaixo.
+    // Enquanto isso, usamos formato auto + full-width-responsive.
+    function getAdSenseHTML() {
+      return `
+        <div class="adsense-slot">
+          <ins class="adsbygoogle"
+               style="display:block; width:100%; min-height:100px;"
+               data-ad-client="ca-pub-5066020163837493"
+               data-ad-slot="auto"
+               data-ad-format="auto"
+               data-full-width-responsive="true"></ins>
+        </div>`;
+    }
+
+    function pushAds() {
+      try {
+        (window.adsbygoogle = window.adsbygoogle || []).push({});
+      } catch (e) {}
+    }
+
+    function startAttendantQueue() {
+      const minSec = 10 * 60;
+      const maxSec = 30 * 60;
+      queueSecondsLeft = Math.floor(Math.random() * (maxSec - minSec + 1)) + minSec;
+      const p = knowledgeBase[currentPlatform];
+      const link = (p && p.suporteLink) ? p.suporteLink : 'https://www.jadeucerto.net';
+
+      const queueHTML = `
+        <div class="queue-box" id="queueBox">
+          <h4>⏳ Você está na fila de atendimento</h4>
+          <div class="queue-warning">⚠️ <strong>Não saia deste chat</strong> enquanto aguarda. Se sair, sua posição na fila pode ser perdida.</div>
+          <div class="queue-timer" id="queueTimer">${formatMMSS(queueSecondsLeft)}</div>
+          <div class="queue-info">Tempo estimado de espera. Assim que chegar a sua vez, um botão aparecerá aqui.</div>
+          ${getAdSenseHTML()}
+          <div id="queueArrivedSlot"></div>
+        </div>`;
+
+      createMessage(`Você foi colocado na **fila de atendimento humano**.\n\nPor favor, **não saia deste chat** enquanto aguarda.`, true, queueHTML);
+      setTimeout(pushAds, 500);
+
+      if (queueTimerInterval) clearInterval(queueTimerInterval);
+      queueTimerInterval = setInterval(() => {
+        queueSecondsLeft--;
+        const timerEl = document.getElementById('queueTimer');
+        if (timerEl) timerEl.textContent = formatMMSS(Math.max(0, queueSecondsLeft));
+        if (queueSecondsLeft <= 0) {
+          clearInterval(queueTimerInterval);
+          queueTimerInterval = null;
+          const slot = document.getElementById('queueArrivedSlot');
+          if (slot) {
+            slot.innerHTML = `<div style="margin-top:14px"><p style="margin-bottom:10px;font-size:13px;color:var(--accent)">✅ Sua vez chegou!</p><a href="${link}" target="_blank" rel="noopener" class="quick-btn arrived" style="display:inline-block;text-decoration:none">🙋 Cheguei, clique aqui</a></div>`;
+          }
+          scrollToBottom();
+        }
+      }, 1000);
+    }
+
+    function detectPlatform(text) {
+      const n = normalize(text);
+      let best = null, bestScore = 0;
+      for (const [key, data] of Object.entries(knowledgeBase)) {
+        for (const alias of data.aliases) {
+          const a = normalize(alias);
+          if (n === a) return key;
+          if (n.includes(a)) {
+            const score = a.length;
+            if (score > bestScore) { bestScore = score; best = key; }
+          }
+        }
+      }
+      return best;
+    }
+
+    function detectIntent(text) {
+      const n = normalize(text);
+      if (/saque.*recus|recus.*saque|saque.*negad|negad.*saque|saque.*rejeit|rejeit.*saque|nao.*consegui.*sacar|saque.*nao.*foi|problema.*saque/.test(n)) return 'saque_recusado';
+      if (/bingo|cartela/.test(n)) return 'bingo';
+      if (/pule|resultado.*nao.*(saiu|ocorreu|teve)|sorteio.*nao.*(saiu|ocorreu)|nao.*teve.*resultado|pule.*valida|pule.*vale/.test(n)) return 'pule';
+      if (/cassino|casino|slot|tigrinho|fortune tiger|jogo.*nao.*(abre|roda)|premio.*cassino|premio.*nao.*pago|saldo.*cassino|recarga.*cassino/.test(n)) return 'cassino';
+      if (/excluir.*conta|deletar.*conta|apagar.*conta|remover.*conta|fechar.*conta|cancelar.*conta/.test(n)) return 'excluir';
+      if (/bonus|promo|promocao|oferta|recarga.*bonus/.test(n)) return 'bonus';
+      if (/cotacao|milhar|centena|dezena|grupo|paga quanto|quanto paga|premio/.test(n)) return 'cotacao';
+      if (/deposito|depositar|recarregar|pix|colocar dinheiro|carregar/.test(n)) return 'deposito';
+      if (/saque|sacar|retirar|receber|pagamento|transferir/.test(n)) return 'saque';
+      if (/tutorial|como jogar|como funciona.*jogo|aprender|ensina|como apostar|como fazer aposta/.test(n)) return 'tutorial';
+      if (/jogo|jogar|loteria/.test(n)) return 'jogos';
+      if (/suporte|atendimento|contato|falar|humano|ajuda|atendente/.test(n)) return 'suporte';
+      if (/problema|erro|bug|nao abre|travando|lento|nao caiu|nao credit|nao funciona|travou|nao consigo/.test(n)) return 'problemas';
+      if (/geral|sobre|o que e|como funciona|informacao|link oficial|site oficial/.test(n)) return 'geral';
+      return 'geral';
+    }
+
+    function isConfirmation(text) {
+      const n = normalize(text);
+      const yes = ['sim', 'isso', 'correto', 'certo', 'exato', 'confirmo', 'pode ser', 'ok', 'okay', 'yes', 'uhum', 'isso mesmo', 'e esse', 'esse', 'positivo'];
+      return yes.some(w => n === w || n.startsWith(w + ' ') || n.includes(' ' + w));
+    }
+    function isDenial(text) {
+      const n = normalize(text);
+      const no = ['nao', 'errado', 'incorreto', 'outro', 'outra', 'negativo', 'no'];
+      return no.some(w => n === w || n.startsWith(w + ' ') || n.includes(' ' + w));
+    }
+
+    async function processMessage(userText) {
+      const text = userText.trim();
+      if (!text) return;
+      createMessage(text, false);
+      inputEl.value = '';
+      autoResize();
+
+      if (state === 'asking_platform') {
+        const detected = detectPlatform(text);
+        if (detected) {
+          pendingPlatform = detected;
+          state = 'confirming';
+          const p = knowledgeBase[detected];
+          await botReply(`Entendi! Você está pedindo suporte para o **${p.name}** ${p.icon}.\n\nEstá correto?`, 800,
+            `<div class="quick-replies"><button class="quick-btn confirm" onclick="confirmPlatform(true)">✅ Sim, está correto</button><button class="quick-btn deny" onclick="confirmPlatform(false)">❌ Não, é outro</button></div>`);
+        } else {
+          await botReply(`Não consegui identificar o aplicativo com clareza.\n\nPode digitar novamente o nome? Exemplos: Acertos Club, Feiticeira, Tiger Club, SuperBancas, Banca Brasileira ou Super Acertos.`, 900);
+        }
+        return;
+      }
+
+      if (state === 'confirming') {
+        if (isConfirmation(text)) await confirmPlatform(true);
+        else if (isDenial(text)) await confirmPlatform(false);
+        else {
+          const newDetected = detectPlatform(text);
+          if (newDetected) {
+            pendingPlatform = newDetected;
+            const p = knowledgeBase[newDetected];
+            await botReply(`Ok, então você quis dizer **${p.name}** ${p.icon}?\n\nConfirma?`, 700,
+              `<div class="quick-replies"><button class="quick-btn confirm" onclick="confirmPlatform(true)">✅ Sim</button><button class="quick-btn deny" onclick="confirmPlatform(false)">❌ Não</button></div>`);
+          } else {
+            await botReply(`Por favor, confirme se é o **${knowledgeBase[pendingPlatform].name}** respondendo **sim** ou **não**.`, 600);
+          }
+        }
+        return;
+      }
+
+      if (state === 'awaiting_question' || state === 'answering') {
+        if (/trocar|outra plataforma|outro app|mudar|quero outro|outro aplicativo/.test(normalize(text))) {
+          state = 'asking_platform';
+          currentPlatform = null; pendingPlatform = null;
+          applyTheme(null);
+          document.getElementById('headerTitle').textContent = 'Suporte Inteligente';
+          document.getElementById('headerStatus').textContent = 'Online • Atendimento inteligente';
+          if (queueTimerInterval) { clearInterval(queueTimerInterval); queueTimerInterval = null; }
+          await botReply(`Sem problema! Qual aplicativo você deseja suporte agora?`, 600);
+          return;
+        }
+
+        const intent = detectIntent(text);
+        const platform = knowledgeBase[currentPlatform];
+
+        if (intent === 'saque_recusado') {
+          state = 'answering';
+          await botReply(SAQUE_RECUSADO, 900, `
+            <div class="quick-replies">
+              <button class="quick-btn attendant" onclick="callAttendant()">🙋 Chamar Atendente</button>
+              <button class="quick-btn" onclick="quickAsk('saque')">📤 Mais sobre saque</button>
+              <button class="quick-btn" onclick="quickAsk('problemas')">🛠️ Outros problemas</button>
+            </div>`);
+          return;
+        }
+
+        if (intent === 'bingo') {
+          state = 'answering';
+          await botReply(platform.info.bingo || BINGO_INFO, 900, `
+            <div class="quick-replies">
+              <button class="quick-btn attendant" onclick="callAttendant()">🙋 Chamar Atendente</button>
+              <button class="quick-btn" onclick="quickAsk('tutorial')">📖 Como jogar loterias</button>
+              <button class="quick-btn" onclick="quickAsk('pule')">📌 Validade da pule</button>
+            </div>`);
+          return;
+        }
+
+        if (intent === 'pule') {
+          state = 'answering';
+          await botReply(platform.info.pule || PULE_VALIDADE, 900);
+          await showMoreHelp(platform);
+          return;
+        }
+
+        if (intent === 'cassino') {
+          state = 'answering';
+          let msg = platform.info.cassino || CASSINO_INFO;
+          if (platform.officialLink) msg += `\n\n**Link oficial recomendado:** ${platform.officialLink}`;
+          await botReply(msg, 900, `
+            <div class="quick-replies">
+              ${platform.officialLink ? `<a class="quick-btn" href="${platform.officialLink}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit">🔗 Abrir link oficial</a>` : ''}
+              <button class="quick-btn attendant" onclick="callAttendant()">🙋 Chamar Atendente</button>
+              <button class="quick-btn" onclick="quickAsk('tutorial')">📖 Como jogar loterias</button>
+            </div>`);
+          return;
+        }
+
+        if (intent === 'excluir') {
+          state = 'answering';
+          await botReply(platform.info.excluir || EXCLUIR_CONTA, 900);
+          await showMoreHelp(platform);
+          return;
+        }
+
+        if (intent === 'tutorial') {
+          state = 'answering';
+          await botReply(platform.info.tutorial || TUTORIAL_LOTERIAS, 900);
+          await showMoreHelp(platform);
+          return;
+        }
+
+        if (intent === 'suporte' && /atendente|humano|pessoa|falar com/.test(normalize(text))) {
+          await callAttendant();
+          return;
+        }
+
+        const answer = platform.info[intent] || platform.info.geral;
+        state = 'answering';
+        await botReply(answer, 900);
+        await showMoreHelp(platform);
+      }
+    }
+
+    async function showMoreHelp(platform) {
+      await botReply(`Posso ajudar com mais alguma dúvida sobre o **${platform.name}**?`, 400, `
+        <div class="quick-replies">
+          <button class="quick-btn" onclick="quickAsk('bonus')">🎁 Bônus</button>
+          <button class="quick-btn" onclick="quickAsk('cotacao')">💰 Cotação</button>
+          <button class="quick-btn" onclick="quickAsk('deposito')">📥 Depósito</button>
+          <button class="quick-btn" onclick="quickAsk('saque')">📤 Saque</button>
+          <button class="quick-btn" onclick="quickAsk('tutorial')">📖 Como jogar</button>
+          <button class="quick-btn" onclick="quickAsk('bingo')">🎱 Bingo</button>
+          <button class="quick-btn" onclick="quickAsk('pule')">📌 Pule / resultado</button>
+          <button class="quick-btn" onclick="quickAsk('cassino')">🎰 Cassino</button>
+          <button class="quick-btn" onclick="quickAsk('excluir')">🗑️ Excluir conta</button>
+          <button class="quick-btn" onclick="quickAsk('problemas')">🛠️ Problemas</button>
+          <button class="quick-btn attendant" onclick="callAttendant()">🙋 Atendente</button>
+          <button class="quick-btn" onclick="changePlatform()">🔄 Trocar app</button>
+        </div>`);
+    }
+
+    window.confirmPlatform = async function(yes) {
+      if (yes) {
+        currentPlatform = pendingPlatform;
+        pendingPlatform = null;
+        const p = knowledgeBase[currentPlatform];
+        createMessage('Sim, está correto', false);
+        await showTransferring(p.name);
+        applyTheme(p.theme);
+        updateHeader(currentPlatform);
+        state = 'awaiting_question';
+        await botReply(`Você foi transferido para o suporte do **${p.name}** ${p.icon}.\n\nEste atendimento prioriza **Loterias e Bingo**. Para cassino o suporte é limitado.\n\nQual é a sua dúvida?`, 600);
+      } else {
+        createMessage('Não, é outro', false);
+        state = 'asking_platform';
+        pendingPlatform = null;
+        currentPlatform = null;
+        applyTheme(null);
+        await botReply(`Entendi, desculpe o equívoco.\n\nPode me dizer novamente o nome do aplicativo que você precisa de suporte?`, 700);
+      }
+    };
+
+    window.callAttendant = async function() {
+      createMessage('Quero falar com um atendente', false);
+      state = 'answering';
+      await botReply(`Certo. Vou te colocar na **fila de atendimento humano**.\n\nPor favor, **não saia deste chat** enquanto aguarda.`, 700);
+      startAttendantQueue();
+    };
+
+    window.quickAsk = async function(intent) {
+      const labels = {
+        bonus: 'Quero saber sobre os bônus',
+        cotacao: 'Qual é a cotação?',
+        deposito: 'Como faço um depósito?',
+        saque: 'Como faço um saque?',
+        tutorial: 'Como jogar nas loterias?',
+        problemas: 'Estou com um problema',
+        saque_recusado: 'Meu saque foi recusado',
+        cassino: 'Tenho dúvida sobre o cassino',
+        excluir: 'Quero excluir minha conta',
+        bingo: 'Quero saber sobre o bingo',
+        pule: 'O resultado não saiu, a pule vale?'
+      };
+      await processMessage(labels[intent] || intent);
+    };
+
+    window.changePlatform = async function() {
+      createMessage('Quero trocar de aplicativo', false);
+      state = 'asking_platform';
+      currentPlatform = null;
+      pendingPlatform = null;
+      applyTheme(null);
+      document.getElementById('headerTitle').textContent = 'Suporte Inteligente';
+      document.getElementById('headerStatus').textContent = 'Online • Atendimento inteligente';
+      if (queueTimerInterval) { clearInterval(queueTimerInterval); queueTimerInterval = null; }
+      await botReply(`Combinado! Qual aplicativo você deseja suporte agora?`, 600);
+    };
+
+    function handleKey(e) {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+    }
+    function autoResize() {
+      inputEl.style.height = 'auto';
+      inputEl.style.height = Math.min(inputEl.scrollHeight, 100) + 'px';
+    }
+    inputEl.addEventListener('input', autoResize);
+
+    async function sendMessage() {
+      const text = inputEl.value.trim();
+      if (!text || isTyping) return;
+      sendBtn.disabled = true;
+      await processMessage(text);
+      sendBtn.disabled = false;
+      inputEl.focus();
+    }
+
+    async function startChat() {
+      state = 'asking_platform';
+      currentPlatform = null;
+      pendingPlatform = null;
+      applyTheme(null);
+      document.getElementById('headerTitle').textContent = 'Suporte Inteligente';
+      document.getElementById('headerStatus').textContent = 'Online • Atendimento inteligente';
+      if (queueTimerInterval) { clearInterval(queueTimerInterval); queueTimerInterval = null; }
+      await botReply(`Olá! 👋 Sou o **Assistente de Suporte Inteligente**.\n\nPara te atender da melhor forma, preciso saber:\n\n**Qual aplicativo ou banca você deseja suporte?**`, 900);
+    }
+
+    function resetChat() {
+      if (queueTimerInterval) { clearInterval(queueTimerInterval); queueTimerInterval = null; }
+      messagesEl.innerHTML = '';
+      startChat();
+    }
+
+    setTimeout(() => inputEl.focus(), 300);
+    startChat();
+  </script>
+</body>
+</html>
