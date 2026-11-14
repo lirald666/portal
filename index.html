@@ -55,7 +55,7 @@
     @media (min-width:760px) { footer .wrap { grid-template-columns: 1.4fr 1fr 1fr; } }
     .prose { max-width: 720px; }
     .prose h1 { font-family: Fraunces, serif; }
-    #bot { position:fixed; right:16px; bottom:16px; z-index:30; width:min(100% - 32px, 340px); }
+    #bot { position:fixed; right:16px; bottom:16px; z-index:30; width:min(100% - 32px, 340px); display:flex; flex-direction:column; align-items:flex-end; }
     #panel { display:none; background:var(--card); border:1px solid var(--line); border-radius:16px; overflow:hidden; margin-bottom:8px; height:380px; flex-direction:column; }
     #panel.open { display:flex; }
     #panel header { position:static; background:var(--forest); color:var(--paper); padding:10px 12px; display:flex; justify-content:space-between; }
@@ -67,7 +67,19 @@
     .topics button { border:1px solid var(--line); border-radius:999px; padding:4px 8px; font-size:12px; }
     #ask { display:flex; gap:6px; padding:8px; border-top:1px solid var(--line); }
     #ask input { flex:1; }
-    #openbot { background:var(--gold); color:var(--ink); border-radius:999px; padding:10px 14px; font-weight:700; float:right; }
+    #openbot { background:var(--gold); color:var(--ink); border-radius:999px; padding:10px 14px; font-weight:700; }
+    #mascote { position:relative; display:flex; flex-direction:column; align-items:flex-end; margin-bottom:8px; }
+    #balao { max-width:230px; margin:0 0 8px; background:#fffdf8; color:var(--ink); border:1px solid var(--line); border-radius:14px; padding:8px 10px; font-size:13px; line-height:1.35; box-shadow:0 8px 22px rgba(20,33,28,.14); }
+    #balao[hidden] { display:none; }
+    #bonequinho { width:58px; height:74px; border:0; background:transparent; padding:0; cursor:pointer; }
+    #bonequinho .cabeca { display:block; width:36px; height:36px; margin:0 auto; background:#f4efe4; border:3px solid #0e3b2e; border-radius:50%; position:relative; }
+    #bonequinho .cabeca:before, #bonequinho .cabeca:after { content:""; position:absolute; top:13px; width:5px; height:5px; background:#14211c; border-radius:50%; }
+    #bonequinho .cabeca:before { left:8px; }
+    #bonequinho .cabeca:after { right:8px; }
+    #bonequinho .corpo { display:block; width:46px; height:30px; margin:-6px auto 0; background:#0e3b2e; border-radius:16px 16px 12px 12px; position:relative; }
+    #bonequinho .corpo:after { content:""; position:absolute; left:15px; top:8px; width:16px; height:8px; background:#a9782f; border-radius:3px; }
+    #bonequinho.fala { animation: pulo .5s ease; }
+    @keyframes pulo { 50% { transform: translateY(-5px); } }
   </style>
 </head>
 <body>
@@ -95,6 +107,10 @@
       <div id="log"></div>
       <div class="topics" id="topics"></div>
       <form id="ask"><input id="askq" placeholder="Escreva o assunto" /><button class="go" type="submit">Enviar</button></form>
+    </div>
+    <div id="mascote">
+      <p id="balao" hidden></p>
+      <button id="bonequinho" type="button" aria-label="Certo, mascote do portal"><span class="cabeca"></span><span class="corpo"></span></button>
     </div>
     <button id="openbot" type="button">Apoio</button>
   </div>
@@ -424,8 +440,53 @@
     });
     document.getElementById("openbot").onclick = function () { document.getElementById("panel").classList.add("open"); };
     document.getElementById("closebot").onclick = function () { document.getElementById("panel").classList.remove("open"); };
+    var FALAS = [
+      "Áries: hoje vale ouvir a manchete inteira antes de opinar.",
+      "Touro: um café e uma notícia local já organizam a manhã.",
+      "Gêmeos: duas versões do mesmo assunto pedem a fonte original.",
+      "Câncer: leia o que acontece perto de casa e respire.",
+      "Leão: o destaque do dia não precisa ser o mais barulhento.",
+      "Virgem: confira a data da notícia antes de compartilhar.",
+      "Libra: compare o título com o link da fonte.",
+      "Escorpião: uma pauta curta pode esconder um detalhe importante.",
+      "Sagitário: olhe também o que veio de fora do estado.",
+      "Capricórnio: termine uma leitura antes de abrir outra aba.",
+      "Aquário: o assunto em alta muda; a fonte continua obrigatória.",
+      "Peixes: escolha uma editoria e fique nela por alguns minutos.",
+      "Certo: acabei de ver manchete nova da Paraíba. Quer abrir o Apoio?",
+      "Certo: horóscopo é brincadeira. Notícia fica no link da fonte."
+    ];
+    var falaI = 0;
+    var balaoTimer = null;
+    function mostrarFala() {
+      var el = document.getElementById("balao");
+      var boneco = document.getElementById("bonequinho");
+      el.hidden = false;
+      el.textContent = FALAS[falaI % FALAS.length];
+      falaI += 1;
+      boneco.classList.remove("fala");
+      void boneco.offsetWidth;
+      boneco.classList.add("fala");
+      clearTimeout(balaoTimer);
+      balaoTimer = setTimeout(function () { el.hidden = true; }, 9000);
+    }
+    document.getElementById("bonequinho").onclick = mostrarFala;
+    document.getElementById("balao").onclick = function () {
+      say("bot", document.getElementById("balao").textContent);
+      document.getElementById("panel").classList.add("open");
+    };
+    async function carregarFalas() {
+      try {
+        var res = await fetch(SCRIPT_URL + "?acao=falas");
+        var data = await res.json();
+        if (data.falas && data.falas.length) FALAS = data.falas;
+      } catch (e) {}
+      mostrarFala();
+      setInterval(mostrarFala, 60000);
+    }
     render();
     load();
+    carregarFalas();
   </script>
 </body>
 </html>
