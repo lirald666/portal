@@ -399,25 +399,19 @@
       log.appendChild(p);
       log.scrollTop = log.scrollHeight;
     }
-    function answer(text) {
-      say("user", text);
-      var key = Object.keys(TOPICS).find(function (k) { return text.toLowerCase().indexOf(k.toLowerCase()) !== -1; });
-      say("bot", key ? TOPICS[key] : "Posso falar sobre Paraíba, Estados, Famosos, anúncios, automação, contato e privacidade.");
-    }
-    say("bot", "Olá. Sou o apoio do Já Deu Certo. Escolha um assunto ou escreva a palavra.");
-    document.getElementById("topics").innerHTML = Object.keys(TOPICS).map(function (k) { return '<button type="button">' + k + "</button>"; }).join("");
-    document.getElementById("topics").addEventListener("click", function (e) { if (e.target.tagName === "BUTTON") answer(e.target.textContent); });
-    document.getElementById("ask").addEventListener("submit", function (e) {
-      e.preventDefault();
-      var v = document.getElementById("askq").value.trim();
-      if (!v) return;
-      document.getElementById("askq").value = "";
-      answer(v);
-    });
-    document.getElementById("openbot").onclick = function () { document.getElementById("panel").classList.add("open"); };
-    document.getElementById("closebot").onclick = function () { document.getElementById("panel").classList.remove("open"); };
-    render();
-    load();
+    async function answer(text) {
+  say("user", text);
+  var key = Object.keys(TOPICS).find(function (k) { return text.toLowerCase().indexOf(k.toLowerCase()) !== -1; });
+  if (key) return say("bot", TOPICS[key]);
+  say("bot", "Consultando…");
+  try {
+    var res = await fetch(SCRIPT_URL + "?acao=chat&q=" + encodeURIComponent(text));
+    var data = await res.json();
+    say("bot", data.resposta || "Não consegui responder agora. Escreva para redacao@jadeucerto.com.");
+  } catch (e) {
+    say("bot", "Não consegui responder agora. Escreva para redacao@jadeucerto.com.");
+  }
+}
   </script>
 </body>
 </html>
