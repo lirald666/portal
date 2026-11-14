@@ -81,7 +81,7 @@
     </div>
     <div class="nav" id="nav"></div>
   </header>
-  <main id="app"><p class="kicker">Paraíba, Brasil e mundo</p><h1 style="font-family:Fraunces,serif">Manchetes do dia</h1><p>O Já Deu Certo reúne títulos de veículos de notícias, com data e crédito. O texto completo fica na fonte. Enquanto as manchetes carregam, estas páginas já podem ser lidas.</p><p><a href="/postagens/">Postagens</a> · <a href="/sobre.html">Sobre</a> · <a href="/contato.html">Contato</a> · <a href="/privacidade.html">Privacidade</a> · <a href="/termos.html">Termos</a></p><ul><li><a href="https://www.jadeucerto.net/postagens/cantora-claudette-soares-morreu-dormindo-bcd408b0.html">Cantora Claudette Soares morreu dormindo</a></li><li><a href="https://www.jadeucerto.net/postagens/jennifer-grey-voltar-a-viver-baby-em-dirty-dancing-ritmo-quente-8dc39a59.html">Jennifer Grey voltar� a viver Baby em &quot;Dirty Dancing - Ritmo Quente&quot;</a></li><li><a href="https://www.jadeucerto.net/postagens/pivo-de-polemica-jorge-jesus-opina-sobre-homenagem-a-cristiano-ronaldo-f6fde81f.html">Pivô de polêmica, Jorge Jesus opina sobre homenagem a Cristiano Ronaldo</a></li><li><a href="https://www.jadeucerto.net/postagens/for-a-a-rea-dos-eua-responde-a-suspeita-de-drones-em-base-a-rea-no-rei-ef58a952.html">For�a A�rea dos EUA responde a suspeita de drones em base a�rea no Reino Unido</a></li><li><a href="https://www.jadeucerto.net/postagens/escola-de-rio-branco-vence-etapa-estadual-do-desafio-liga-jovem-e-repr-54a59919.html">Escola de Rio Branco vence etapa estadual do Desafio Liga Jovem e representará o Acre em Brasília</a></li><li><a href="https://www.jadeucerto.net/postagens/jogador-de-time-espanhol-jesus-owono-e-suspenso-por-12-jogos-apos-lanc-eebbbd08.html">Jogador de time espanhol Jesús Owono é suspenso por 12 jogos após lance que resultou em morte de atacante</a></li></ul></main>
+  <main id="app"><p class="kicker">Paraíba, Brasil e mundo</p><h1 style="font-family:Fraunces,serif">Manchetes do dia</h1><p>O Já Deu Certo reúne títulos de veículos de notícias, com data e crédito. O texto completo fica na fonte.</p><p><a href="/postagens/">Postagens</a> · <a href="/sobre.html">Sobre</a> · <a href="/contato.html">Contato</a> · <a href="/privacidade.html">Privacidade</a> · <a href="/termos.html">Termos</a></p></main>
   <footer>
     <div class="wrap">
       <div><strong>Já Deu Certo</strong><p>Manchetes da Paraíba, do Brasil e do mundo. O texto completo fica no veículo de origem.</p></div>
@@ -191,9 +191,19 @@
           }));
         } catch (e) { return []; }
       }));
-      const seen = new Set();
-      items = batches.flat().filter((item) => item.url && !seen.has(item.url) && seen.add(item.url));
-      items.sort((a, b) => +new Date(b.publishedAt) - +new Date(a.publishedAt));
+      function chaveTitulo(t) {
+        return String(t || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, " ").trim().slice(0, 80);
+      }
+      var vistas = {};
+      items = batches.flat().filter(function (item) {
+        if (!item.url) return false;
+        var chave = chaveTitulo(item.title);
+        if (vistas[item.url] || vistas[chave]) return false;
+        vistas[item.url] = true;
+        vistas[chave] = true;
+        return true;
+      });
+      items.sort(function (a, b) { return +new Date(b.publishedAt) - +new Date(a.publishedAt); });
       note = items.length
         ? "Manchetes lidas agora dos feeds públicos. Última abertura: " + new Date().toLocaleString("pt-BR", { timeZone: "America/Fortaleza" }) + ". O texto completo fica na fonte."
         : "Os feeds não responderam nesta abertura. Recarregue a página em alguns minutos.";
@@ -210,10 +220,35 @@
       return '<section class="rail"><h2>' + esc(title) + '</h2><div class="grid two">' + rows.slice(0, 4).map(function (item) { return card(item, false); }).join("") + "</div></section>";
     }
     function page(html) { document.getElementById("app").innerHTML = html; }
+    function pegar(lista, n, usadas) {
+      var saida = [];
+      lista.forEach(function (item) {
+        if (saida.length >= n || usadas[item.url]) return;
+        usadas[item.url] = true;
+        saida.push(item);
+      });
+      return saida;
+    }
     function home() {
-      var lead = items[0];
-      var rest = items.slice(1);
-      page('<p class="note">' + esc(note) + '</p><div id="alta"></div>' + (lead ? card(lead, true) : "") + ad() + '<div class="grid two">' + rest.slice(0, 4).map(function (item) { return card(item, false); }).join("") + "</div>" + list("Paraíba", items.filter(function (i) { return i.region === "paraiba"; })) + list("Brasil", items.filter(function (i) { return i.region === "brasil"; })) + list("Mundo", items.filter(function (i) { return i.region === "mundo"; })) + list("Famosos", items.filter(function (i) { return i.section === "entretenimento"; })));
+      var usadas = {};
+      var paraiba = items.filter(function (i) { return i.region === "paraiba"; });
+      var lead = pegar(paraiba.length ? paraiba : items, 1, usadas)[0];
+      var faixa = pegar(items.filter(function (i) { return i.region !== "paraiba"; }), 4, usadas);
+      if (faixa.length < 4) faixa = faixa.concat(pegar(items, 4 - faixa.length, usadas));
+      function bloco(titulo, filtro, n) {
+        return list(titulo, pegar(items.filter(filtro), n, usadas));
+      }
+      page('<p class="note">' + esc(note) + '</p><div id="alta"></div>'
+        + (lead ? card(lead, true) : "")
+        + ad()
+        + '<div class="grid two">' + faixa.map(function (item) { return card(item, false); }).join("") + "</div>"
+        + bloco("Paraíba", function (i) { return i.region === "paraiba"; }, 4)
+        + bloco("Brasil", function (i) { return i.region === "brasil"; }, 4)
+        + bloco("Mundo", function (i) { return i.region === "mundo"; }, 4)
+        + bloco("Política", function (i) { return i.section === "politica"; }, 3)
+        + bloco("Economia", function (i) { return i.section === "economia"; }, 3)
+        + bloco("Esportes", function (i) { return i.section === "esportes"; }, 3)
+        + bloco("Famosos", function (i) { return i.section === "entretenimento"; }, 3));
       emAlta();
     }
     async function emAlta() {
